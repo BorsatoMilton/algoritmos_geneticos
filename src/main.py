@@ -1,48 +1,74 @@
 import random
+from condiciones import (ciclos, longitud_cromosoma, tamanio_poblacion)
+from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_resultados)
+from seleccion import calcular_ruleta, seleccion_torneo
+import argparse
+
+def parsear_argumentos():
+    parser = argparse.ArgumentParser(description="Algoritmo Genético para optimización de función")
+    parser.add_argument("--corridas", type=int, default=20, choices=[20, 100, 200], help="Cantidad de veces que se ejecuta el algoritmo completo (default: 20)")
+    parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo"], help="Método de selección: ruleta | torneo (default: ruleta)")# "elitismo" se agregará después
+    return parser.parse_args()
+
+def ejecutar_corrida(metodo):
+    poblacion = []
+    mejores_por_poblacion = [] # lista de tuplas (mejor, peor, promedio) por generación
+    mejor_cromosoma = None
+ 
+    # Inicializar población aleatoria
+    for _ in range(tamanio_poblacion):
+        cromosoma = [random.randint(0, 1) for _ in range(longitud_cromosoma)]
+        numero_decimal = pasar_a_decimal(cromosoma)
+        poblacion.append([cromosoma, numero_decimal, 0.0])
+ 
+    poblacion_descendente = poblacion
+ 
+    # Ciclos = generaciones dentro de esta corrida
+    for _ in range(ciclos):
+        calcular_fitness(poblacion_descendente)
+ 
+        if metodo == "ruleta":
+            cromosomas_seleccionados = calcular_ruleta(poblacion_descendente)
+        elif metodo == "torneo":
+            cromosomas_seleccionados = seleccion_torneo(poblacion_descendente, k=3)
+ 
+        nueva_generacion = calcular_crossover(poblacion_descendente, cromosomas_seleccionados)
+        calcular_mutacion(nueva_generacion)
+        mejor_cromosoma = calcular_resultados(poblacion_descendente, mejores_por_poblacion, mejor_cromosoma)
+        poblacion_descendente = nueva_generacion
+ 
+    return mejores_por_poblacion, mejor_cromosoma
+
+
 
 def main():
-    # Parametros del algoritmo genetico
-    prob_crossover = 0.75
-    prob_mutation = 0.05
-    poblacion = [] # cromosoma, numero_decimal, fitness
-    ciclos = 20
-    longitud_cromosoma = 30
-    tamanio_poblacion = 10
-
-
-    for _ in range(tamanio_poblacion):
-        cromosoma = [random.randint(0, 1) for _ in range(longitud_cromosoma)]   
-        poblacion.append([cromosoma, 0.0, 0.0])
-    
-    sumatoria = sumatoria_funcion_objetivo(poblacion)
-
-    calcular_fitness(poblacion, sumatoria)
-
-
-
-def sumatoria_funcion_objetivo(poblacion):
-    sumatoria = 0
-    for i in range(len(poblacion)):
-        numero_decimal = pasar_a_decimal(poblacion[i][0])
-        poblacion[i][1] = numero_decimal
-        sumatoria += calcular_funcion_objetivo(numero_decimal)
-    return sumatoria
-
-def pasar_a_decimal(cromosoma):
-    numero = 0
-    for i in range(len(cromosoma)):
-        numero += cromosoma[i] * (2 ** (len(cromosoma) - 1 - i))
-    return numero
-
-def calcular_fitness(poblacion, sumatoria):
-    for i in range(len(poblacion)):
-        fitness = calcular_funcion_objetivo(poblacion[i][1]) / sumatoria
-        poblacion[i][2] = fitness
-
-def calcular_funcion_objetivo(numero):
-    coef = 2**30 - 1
-    return (numero/coef)**2
-
-
+    args = parsear_argumentos()
+    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | Corridas: {args.corridas} | Ciclos por corrida: {ciclos} ===\n")
+ 
+    resultados_todas_corridas = []   # lista de mejores_por_poblacion de cada corrida
+    mejor_cromosoma_global = None
+ 
+    for corrida in range(args.corridas):
+        mejores_por_poblacion, mejor_cromosoma = ejecutar_corrida(args.metodo)
+        resultados_todas_corridas.append(mejores_por_poblacion)
+ 
+        # Actualizar mejor cromosoma global entre todas las corridas
+        if mejor_cromosoma_global is None or mejor_cromosoma[2] > mejor_cromosoma_global[2]:
+            mejor_cromosoma_global = mejor_cromosoma
+ 
+        # Imprimir detalle de cada corrida con sus generaciones
+        print(f"\n--- Corrida {corrida + 1} ---")
+        for i, (mejor, peor, promedio) in enumerate(mejores_por_poblacion):
+            print(f"  Generacion {i+1:02d} | "
+                  f"Mejor: {mejor[2]:.6f} | "
+                  f"Peor: {peor[2]:.6f} | "
+                  f"Promedio: {promedio:.6f}")
+ 
+    # ── Resumen final ──────────────────────────────────────────────
+    print(f"\n=== RESUMEN FINAL ({args.corridas} corridas) ===")
+    print(f"Mejor cromosoma global: {mejor_cromosoma_global[0]}")
+    print(f"Valor decimal:          {mejor_cromosoma_global[1]}")
+    print(f"Fitness (valor máximo): {mejor_cromosoma_global[2]:.8f}")
+ 
 if __name__ == "__main__":
     main()
