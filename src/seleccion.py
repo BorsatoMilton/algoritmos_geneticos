@@ -24,6 +24,13 @@ def seleccion_torneo(poblacion, k=3):
         lista_cromosomas_seleccionados.append(mejor)
     return lista_cromosomas_seleccionados
 
-# Elitismo: reemplaza los peores de la nueva generación por los mejores de la anterior
-# def aplicar_elitismo():
+# Elitismo
+def elitismo(poblacion):
+    # Ordenar la poblacion por fitness de mayor a menor
+    poblacion_ordenada = sorted(poblacion, key=lambda x: x[2], reverse=True)
+    # Seleccionar los mejores (elitismo) -> el 10% de la poblacion
+    numero_de_mejores = max(1, int(len(poblacion) * 0.10))
+    mejores = poblacion_ordenada[:numero_de_mejores]
+    return mejores
+    
     
