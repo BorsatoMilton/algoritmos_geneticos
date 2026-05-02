@@ -31,6 +31,17 @@ def elitismo(poblacion):
     # Seleccionar los mejores (elitismo) -> el 10% de la poblacion
     numero_de_mejores = max(1, int(len(poblacion) * 0.10))
     mejores = poblacion_ordenada[:numero_de_mejores]
+    # Completar el resto de la lista con seleccion por torneo
+    restantes = len(poblacion) - numero_de_mejores
+    for _ in range(restantes):
+        candidatos = random.sample(poblacion, min(3, len(poblacion)))
+        mejor = max(candidatos, key=lambda x: x[2])
+        mejores.append(mejor)
+    # Asegurar que la cantidad sea par para el crossover
+    if len(mejores) % 2 != 0:
+        candidatos = random.sample(poblacion, min(3, len(poblacion)))
+        mejor = max(candidatos, key=lambda x: x[2])
+        mejores.append(mejor)
     return mejores
     
     

@@ -1,13 +1,13 @@
 import random
 from condiciones import (ciclos, longitud_cromosoma, tamanio_poblacion)
 from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_resultados)
-from seleccion import calcular_ruleta, seleccion_torneo
+from seleccion import calcular_ruleta, seleccion_torneo, elitismo
 import argparse
 
 def parsear_argumentos():
     parser = argparse.ArgumentParser(description="Algoritmo Genético para optimización de función")
     parser.add_argument("--corridas", type=int, default=20, choices=[20, 100, 200], help="Cantidad de veces que se ejecuta el algoritmo completo (default: 20)")
-    parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo"], help="Método de selección: ruleta | torneo (default: ruleta)")# "elitismo" se agregará después
+    parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo", "elitismo"], help="Método de selección: ruleta | torneo | elitismo (default: ruleta)")
     return parser.parse_args()
 
 def ejecutar_corrida(metodo):
@@ -31,6 +31,9 @@ def ejecutar_corrida(metodo):
             cromosomas_seleccionados = calcular_ruleta(poblacion_descendente)
         elif metodo == "torneo":
             cromosomas_seleccionados = seleccion_torneo(poblacion_descendente, k=3)
+        elif metodo == "elitismo":
+            cromosomas_seleccionados = elitismo(poblacion_descendente)
+        
  
         nueva_generacion = calcular_crossover(poblacion_descendente, cromosomas_seleccionados)
         calcular_mutacion(nueva_generacion)
