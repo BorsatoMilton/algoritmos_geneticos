@@ -15,18 +15,15 @@ def calcular_ruleta(poblacion):
 
 # Función torneo (k=3 por defecto)
 def seleccion_torneo(poblacion, k=3):
-    cromosomas_seleccionados = []
-    for _ in range(len(poblacion)):
+    lista_cromosomas_seleccionados = []
+    for i in range(len(poblacion)):
+        # Elegir k candidatos aleatorios
         candidatos = random.sample(poblacion, k)
+        # Elegir el mejor por fitness (índice 2 de cada individuo)
         mejor = max(candidatos, key=lambda x: x[2])
-        cromosomas_seleccionados.append(mejor)
-    return cromosomas_seleccionados
+        lista_cromosomas_seleccionados.append(mejor)
+    return lista_cromosomas_seleccionados
 
 # Elitismo: reemplaza los peores de la nueva generación por los mejores de la anterior
-def aplicar_elitismo(poblacion_vieja, poblacion_nueva, n_elite=2):
-    # Ordenar vieja por fitness descendente
-    mejores = sorted(poblacion_vieja, key=lambda x: x[2], reverse=True)[:n_elite]
-    # Reemplazar los últimos n_elite de la nueva generación (los peores tras ordenar)
-    poblacion_nueva_ordenada = sorted(poblacion_nueva, key=lambda x: x[2], reverse=True)
-    poblacion_nueva_ordenada[-n_elite:] = mejores
-    return poblacion_nueva_ordenada
+# def aplicar_elitismo():
+    
