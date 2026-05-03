@@ -6,46 +6,6 @@ from seleccion import calcular_ruleta, seleccion_torneo, elitismo
 from estadisticas import calcular_desviacion_estandar, calcular_resultados
 import argparse
 
-def parsear_argumentos():
-    parser = argparse.ArgumentParser(description="Algoritmo Genético para optimización de función")
-    parser.add_argument("--corridas", type=int, default=20, choices=[20, 100, 200], help="Cantidad de veces que se ejecuta el algoritmo completo (default: 20)")
-    parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo", "elitismo"], help="Método de selección: ruleta | torneo | elitismo (default: ruleta)")
-    return parser.parse_args()
-
-def ejecutar_corrida(metodo):
-    poblacion = []
-    mejores_por_poblacion = [] # lista de tuplas (mejor, peor, promedio, desviacion_estandar) por generación
-    mejor_cromosoma = None
- 
-    # Inicializar población aleatoria
-    for _ in range(tamanio_poblacion):
-        cromosoma = [random.randint(0, 1) for _ in range(longitud_cromosoma)]
-        numero_decimal = pasar_a_decimal(cromosoma)
-        poblacion.append([cromosoma, numero_decimal, 0.0])
- 
-    poblacion_descendente = poblacion
- 
-    # Ciclos = generaciones dentro de esta corrida
-    for _ in range(ciclos):
-        calcular_fitness(poblacion_descendente)
-        desviacion_estandar = calcular_desviacion_estandar(poblacion_descendente)
- 
-        if metodo == "ruleta":
-            cromosomas_seleccionados = calcular_ruleta(poblacion_descendente)
-        elif metodo == "torneo":
-            cromosomas_seleccionados = seleccion_torneo(poblacion_descendente, k=3)
-        elif metodo == "elitismo":
-            cromosomas_seleccionados = elitismo(poblacion_descendente)
-        
- 
-        nueva_generacion = calcular_crossover(poblacion_descendente, cromosomas_seleccionados)
-        calcular_mutacion(nueva_generacion)
-        mejor_cromosoma = calcular_resultados(poblacion_descendente, mejores_por_poblacion, mejor_cromosoma)
-        poblacion_descendente = nueva_generacion
- 
-    return mejores_por_poblacion, mejor_cromosoma
-
-
 
 def main():
     args = parsear_argumentos()
@@ -77,6 +37,57 @@ def main():
     print(f"Mejor cromosoma global: {mejor_cromosoma_global[0]}")
     print(f"Valor decimal:          {mejor_cromosoma_global[1]}")
     print(f"Fitness (valor máximo): {mejor_cromosoma_global[2]:.8f}")
+
+
+def ejecutar_corrida(metodo):
+    poblacion_inicial = [] # cromosoma, numero_decimal, fitness
+    mejores_por_poblacion = [] # lista de tuplas (mejor, peor, promedio, desviacion_estandar) por generación
+    mejor_cromosoma = None
  
+    # Inicializar población aleatoria
+    for _ in range(tamanio_poblacion):
+        cromosoma = [random.randint(0, 1) for _ in range(longitud_cromosoma)]
+        numero_decimal = pasar_a_decimal(cromosoma)
+        poblacion_inicial.append([cromosoma, numero_decimal, 0.0])
+ 
+    poblacion_descendente = poblacion_inicial
+
+
+    if metodo == "ruleta":
+        funcion_seleccion = calcular_ruleta
+    elif metodo == "torneo":
+        funcion_seleccion = lambda poblacion: seleccion_torneo(poblacion, k=3)
+    elif metodo == "elitismo":
+        funcion_seleccion = elitismo
+    
+
+    # Ciclos = generaciones dentro de esta corrida
+    for _ in range(ciclos):
+        calcular_fitness(poblacion_descendente)
+        desviacion_estandar = calcular_desviacion_estandar(poblacion_descendente)
+
+        if metodo == "elitismo":
+            elite = elitismo(poblacion_descendente) # Recordar que se puede variar el K, esta hardcodeado a 2 por el cvg
+
+        cromosomas_seleccionados = funcion_seleccion(poblacion_descendente)
+        nueva_generacion = calcular_crossover(poblacion_descendente, cromosomas_seleccionados)
+        calcular_mutacion(nueva_generacion)
+
+        if metodo == "elitismo":
+            nueva_generacion.sort(key=lambda x: x[2])
+            nueva_generacion[:len(elite)] = elite
+
+        mejor_cromosoma = calcular_resultados(poblacion_descendente, mejores_por_poblacion, mejor_cromosoma)
+        poblacion_descendente = nueva_generacion
+
+    return mejores_por_poblacion, mejor_cromosoma
+
+def parsear_argumentos():
+    parser = argparse.ArgumentParser(description="Algoritmo Genético para optimización de función")
+    parser.add_argument("--corridas", type=int, default=20, choices=[20, 100, 200], help="Cantidad de veces que se ejecuta el algoritmo completo (default: 20)")
+    parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo", "elitismo"], help="Método de selección: ruleta | torneo | elitismo (default: ruleta)")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
     main()

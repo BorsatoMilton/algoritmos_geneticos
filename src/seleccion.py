@@ -17,31 +17,13 @@ def calcular_ruleta(poblacion):
 def seleccion_torneo(poblacion, k=3):
     lista_cromosomas_seleccionados = []
     for i in range(len(poblacion)):
-        # Elegir k candidatos aleatorios
         candidatos = random.sample(poblacion, k)
-        # Elegir el mejor por fitness (índice 2 de cada individuo)
         mejor = max(candidatos, key=lambda x: x[2])
         lista_cromosomas_seleccionados.append(mejor)
     return lista_cromosomas_seleccionados
 
 # Elitismo
-def elitismo(poblacion):
-    # Ordenar la poblacion por fitness de mayor a menor
+def elitismo(poblacion, cant_elite=2):
     poblacion_ordenada = sorted(poblacion, key=lambda x: x[2], reverse=True)
-    # Seleccionar los mejores (elitismo) -> el 10% de la poblacion
-    numero_de_mejores = max(1, int(len(poblacion) * 0.10))
-    mejores = poblacion_ordenada[:numero_de_mejores]
-    # Completar el resto de la lista con seleccion por torneo
-    restantes = len(poblacion) - numero_de_mejores
-    for _ in range(restantes):
-        candidatos = random.sample(poblacion, min(3, len(poblacion)))
-        mejor = max(candidatos, key=lambda x: x[2])
-        mejores.append(mejor)
-    # Asegurar que la cantidad sea par para el crossover
-    if len(mejores) % 2 != 0:
-        candidatos = random.sample(poblacion, min(3, len(poblacion)))
-        mejor = max(candidatos, key=lambda x: x[2])
-        mejores.append(mejor)
-    return mejores
-    
+    return poblacion_ordenada[:cant_elite]
     
