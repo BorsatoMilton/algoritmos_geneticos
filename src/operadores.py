@@ -46,11 +46,3 @@ def calcular_mutacion(nueva_generacion):
             nueva_generacion[i][0][punto_mutacion] = 1 - nueva_generacion[i][0][punto_mutacion]
             nueva_generacion[i][1] = pasar_a_decimal(nueva_generacion[i][0])
 
-def calcular_resultados(poblacion, mejores_por_poblacion, mejor_cromosoma):
-    mejor_cromosoma_poblacion = max(poblacion, key=lambda x: calcular_funcion_objetivo(x[1]))
-    peor_cromosoma_poblacion = min(poblacion, key=lambda x: calcular_funcion_objetivo(x[1]))
-    promedio_cromosomas_poblacion = sum(calcular_funcion_objetivo(poblacion[i][1]) for i in range(len(poblacion))) / len(poblacion)
-    if mejor_cromosoma is None or calcular_funcion_objetivo(mejor_cromosoma_poblacion[1]) > calcular_funcion_objetivo(mejor_cromosoma[1]):
-        mejor_cromosoma = mejor_cromosoma_poblacion
-    mejores_por_poblacion.append([mejor_cromosoma_poblacion, peor_cromosoma_poblacion, promedio_cromosomas_poblacion])
-    return mejor_cromosoma

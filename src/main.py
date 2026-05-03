@@ -1,7 +1,9 @@
 import random
+import statistics
 from condiciones import (ciclos, longitud_cromosoma, tamanio_poblacion)
-from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_resultados)
+from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion)
 from seleccion import calcular_ruleta, seleccion_torneo, elitismo
+from estadisticas import calcular_desviacion_estandar, calcular_resultados
 import argparse
 
 def parsear_argumentos():
@@ -12,7 +14,7 @@ def parsear_argumentos():
 
 def ejecutar_corrida(metodo):
     poblacion = []
-    mejores_por_poblacion = [] # lista de tuplas (mejor, peor, promedio) por generación
+    mejores_por_poblacion = [] # lista de tuplas (mejor, peor, promedio, desviacion_estandar) por generación
     mejor_cromosoma = None
  
     # Inicializar población aleatoria
@@ -26,6 +28,7 @@ def ejecutar_corrida(metodo):
     # Ciclos = generaciones dentro de esta corrida
     for _ in range(ciclos):
         calcular_fitness(poblacion_descendente)
+        desviacion_estandar = calcular_desviacion_estandar(poblacion_descendente)
  
         if metodo == "ruleta":
             cromosomas_seleccionados = calcular_ruleta(poblacion_descendente)
@@ -48,25 +51,27 @@ def main():
     args = parsear_argumentos()
     print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | Corridas: {args.corridas} | Ciclos por corrida: {ciclos} ===\n")
  
-    resultados_todas_corridas = []   # lista de mejores_por_poblacion de cada corrida
+    resultados_todas_corridas = [] # lista de mejores_por_poblacion de cada corrida
+    desviacion_estandar_por_corrida = [] # lista de desviaciones estándar por corrida
     mejor_cromosoma_global = None
  
     for corrida in range(args.corridas):
         mejores_por_poblacion, mejor_cromosoma = ejecutar_corrida(args.metodo)
         resultados_todas_corridas.append(mejores_por_poblacion)
- 
+        desviacion_estandar_por_corrida.append([desviacion for _, _, _, desviacion in mejores_por_poblacion]) # Guardar desviación estándar de cada generación para esta corrida
         # Actualizar mejor cromosoma global entre todas las corridas
         if mejor_cromosoma_global is None or mejor_cromosoma[2] > mejor_cromosoma_global[2]:
             mejor_cromosoma_global = mejor_cromosoma
  
         # Imprimir detalle de cada corrida con sus generaciones
         print(f"\n--- Corrida {corrida + 1} ---")
-        for i, (mejor, peor, promedio) in enumerate(mejores_por_poblacion):
+        for i, (mejor, peor, promedio, desviacion) in enumerate(mejores_por_poblacion):
             print(f"  Generacion {i+1:02d} | "
                   f"Mejor: {mejor[2]:.6f} | "
                   f"Peor: {peor[2]:.6f} | "
-                  f"Promedio: {promedio:.6f}")
- 
+                  f"Promedio: {promedio:.6f} | "
+                  f"Desviación Estándar: {desviacion:.6f}")
+        print(f"\nPromedio de las desviaciones Estándar de la corrida {corrida + 1}: {statistics.mean([d for d in desviacion_estandar_por_corrida[corrida]]):.6f}") #promedio de los desviaciones estándar de esta corrida")
     # ── Resumen final ──────────────────────────────────────────────
     print(f"\n=== RESUMEN FINAL ({args.corridas} corridas) ===")
     print(f"Mejor cromosoma global: {mejor_cromosoma_global[0]}")
