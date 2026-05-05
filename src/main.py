@@ -3,7 +3,8 @@ import statistics
 from condiciones import (ciclos, longitud_cromosoma, tamanio_poblacion)
 from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion)
 from seleccion import calcular_ruleta, seleccion_torneo, elitismo
-from estadisticas import calcular_desviacion_estandar, calcular_resultados
+from estadisticas import calcular_desviacion_estandar, calcular_resultados, medir_tiempo
+from graficas import generar_grafica
 import argparse
 
 
@@ -38,6 +39,8 @@ def main():
     print(f"Valor decimal:          {mejor_cromosoma_global[1]}")
     print(f"Fitness (valor máximo): {mejor_cromosoma_global[2]:.8f}")
 
+    # ── Generar gráfica de Máx / Mín / Promedio por generación ──
+    generar_grafica(resultados_todas_corridas, args.metodo, args.corridas, ciclos)
 
 def ejecutar_corrida(metodo):
     poblacion_inicial = [] # cromosoma, numero_decimal, fitness
@@ -90,4 +93,5 @@ def parsear_argumentos():
 
 
 if __name__ == "__main__":
-    main()
+    _, tiempo_total = medir_tiempo(main)
+print(f"\nTiempo total de cómputo: {tiempo_total:.4f} segundos")
