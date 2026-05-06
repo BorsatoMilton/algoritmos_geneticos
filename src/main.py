@@ -1,57 +1,80 @@
 import random
 import statistics
-from condiciones import (ciclos, longitud_cromosoma, tamanio_poblacion)
-from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion)
+from condiciones import (longitud_cromosoma, tamanio_poblacion, corridas)
+from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_funcion_objetivo, calcular_desviacion_estandar_fitness, calcular_resultados)
 from seleccion import calcular_ruleta, seleccion_torneo, elitismo
-from estadisticas import calcular_desviacion_estandar, calcular_resultados
 import argparse
+import time
+
+
+class impresion_tablas:
+    def __init__(self):
+        self.minimos = {20:None, 100:None, 200:None}
+        self.maximos = {20:None, 100:None, 200:None}
+        self.promedios = {20:None, 100:None, 200:None}
+        self.desviacion_estandar_fitness = {20:None, 100:None, 200:None}
+        self.tiempos_de_ejecucion = {20:None, 100:None, 200:None}
 
 
 def main():
     args = parsear_argumentos()
-    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | Corridas: {args.corridas} | Ciclos por corrida: {ciclos} ===\n")
+    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | ===\n")
  
-    resultados_todas_corridas = [] # lista de mejores_por_poblacion de cada corrida
-    desviacion_estandar_por_corrida = [] # lista de desviaciones estándar por corrida
-    mejor_cromosoma_global = None
- 
-    for corrida in range(args.corridas):
-        mejores_por_poblacion, mejor_cromosoma = ejecutar_corrida(args.metodo)
-        resultados_todas_corridas.append(mejores_por_poblacion)
-        desviacion_estandar_por_corrida.append([desviacion for _, _, _, desviacion in mejores_por_poblacion]) # Guardar desviación estándar de cada generación para esta corrida
-        # Actualizar mejor cromosoma global entre todas las corridas
-        if mejor_cromosoma_global is None or mejor_cromosoma[2] > mejor_cromosoma_global[2]:
-            mejor_cromosoma_global = mejor_cromosoma
- 
-        # Imprimir detalle de cada corrida con sus generaciones
-        print(f"\n--- Corrida {corrida + 1} ---")
-        for i, (mejor, peor, promedio, desviacion) in enumerate(mejores_por_poblacion):
-            print(f"  Generacion {i+1:02d} | "
-                  f"Mejor: {mejor[2]:.6f} | "
-                  f"Peor: {peor[2]:.6f} | "
-                  f"Promedio: {promedio:.6f} | "
-                  f"Desviación Estándar: {desviacion:.6f}")
-        print(f"\nPromedio de las desviaciones Estándar de la corrida {corrida + 1}: {statistics.mean([d for d in desviacion_estandar_por_corrida[corrida]]):.6f}") #promedio de los desviaciones estándar de esta corrida")
-    # ── Resumen final ──────────────────────────────────────────────
-    print(f"\n=== RESUMEN FINAL ({args.corridas} corridas) ===")
-    print(f"Mejor cromosoma global: {mejor_cromosoma_global[0]}")
-    print(f"Valor decimal:          {mejor_cromosoma_global[1]}")
-    print(f"Fitness (valor máximo): {mejor_cromosoma_global[2]:.8f}")
+    tabla_impresion = impresion_tablas()
+
+    poblacion_inicial = generar_poblacion_inicial()
+    
+    for cant_corridas in corridas:
+
+        tiempo_inicio = time.perf_counter()
+
+        maximo_por_corrida = []
+        minimo_por_corrida = []
+        promedio_por_corrida = []
+        desviacion_estandar_fitness_por_corrida = []
+
+        maximo_por_corrida.append([0,max(poblacion_inicial, key=lambda x: calcular_funcion_objetivo(x[1]))])
+        minimo_por_corrida.append([0,min(poblacion_inicial, key=lambda x: calcular_funcion_objetivo(x[1]))])
+        promedio_por_corrida.append([0,statistics.mean(calcular_funcion_objetivo(x[1]) for x in poblacion_inicial)])
+        desviacion_estandar_fitness_por_corrida.append([0,statistics.stdev(calcular_funcion_objetivo(x[1]) for x in poblacion_inicial)])
+
+        poblacion_descendente = poblacion_inicial.copy()
+
+        for corrida in range(cant_corridas - 1): # -1 porque la poblacion inicial ya se cuenta como una corrida
+
+            nueva_generacion, mejor_cromosoma, peor_cromosoma, promedio, desviacion_estandar_fitness = ejecutar_corrida(args.metodo, poblacion_descendente)
 
 
-def ejecutar_corrida(metodo):
-    poblacion_inicial = [] # cromosoma, numero_decimal, fitness
-    mejores_por_poblacion = [] # lista de tuplas (mejor, peor, promedio, desviacion_estandar) por generación
-    mejor_cromosoma = None
- 
-    # Inicializar población aleatoria
-    for _ in range(tamanio_poblacion):
-        cromosoma = [random.randint(0, 1) for _ in range(longitud_cromosoma)]
-        numero_decimal = pasar_a_decimal(cromosoma)
-        poblacion_inicial.append([cromosoma, numero_decimal, 0.0])
- 
-    poblacion_descendente = poblacion_inicial
+            maximo_por_corrida.append([corrida+1,mejor_cromosoma])
+            minimo_por_corrida.append([corrida+1,peor_cromosoma])
+            promedio_por_corrida.append([corrida+1,promedio])
+            desviacion_estandar_fitness_por_corrida.append([corrida+1,desviacion_estandar_fitness])
 
+
+            if tabla_impresion.maximos[cant_corridas] is None or calcular_funcion_objetivo(mejor_cromosoma[1]) > calcular_funcion_objetivo(tabla_impresion.maximos[cant_corridas][1]):
+                tabla_impresion.maximos[cant_corridas] = mejor_cromosoma
+
+            if tabla_impresion.minimos[cant_corridas] is None or calcular_funcion_objetivo(peor_cromosoma[1]) < calcular_funcion_objetivo(tabla_impresion.minimos[cant_corridas][1]):
+                tabla_impresion.minimos[cant_corridas] = peor_cromosoma
+
+            poblacion_descendente = nueva_generacion
+    
+        tabla_impresion.promedios[cant_corridas] = statistics.mean(promedio_por_corrida[i][1] for i in range(len(promedio_por_corrida))) #promedio de los promedios de esta corrida
+        tabla_impresion.desviacion_estandar_fitness[cant_corridas] = statistics.mean(desviacion_estandar_fitness_por_corrida[i][1] for i in range(len(desviacion_estandar_fitness_por_corrida))) #promedio de las desviaciones estandar de esta corrida
+
+        tabla_impresion.tiempos_de_ejecucion[cant_corridas] = time.perf_counter() - tiempo_inicio
+
+
+    print("Resultados por cantidad de corridas:")
+    for cant_corridas in corridas:
+        print("______________________________________")
+        print(f"\nCorridas: {cant_corridas}")
+        print(f"Mejor cromosoma: {tabla_impresion.maximos[cant_corridas]} \nPeor cromosoma: {tabla_impresion.minimos[cant_corridas]} \nPromedio: {tabla_impresion.promedios[cant_corridas]:.6f} \nDesviación estándar del fitness: {tabla_impresion.desviacion_estandar_fitness[cant_corridas]:.6f} \nTiempo de ejecución: {tabla_impresion.tiempos_de_ejecucion[cant_corridas]:.6f} segundos")
+    
+    # FALTAN GRÁFICAS   
+
+
+def ejecutar_corrida(metodo, poblacion):
 
     if metodo == "ruleta":
         funcion_seleccion = calcular_ruleta
@@ -60,31 +83,46 @@ def ejecutar_corrida(metodo):
     elif metodo == "elitismo":
         funcion_seleccion = elitismo
     
+    if metodo == "elitismo":
+        elite = elitismo(poblacion) # Recordar que se puede variar el K, esta hardcodeado a 2 por el cvg
 
-    # Ciclos = generaciones dentro de esta corrida
-    for _ in range(ciclos):
-        calcular_fitness(poblacion_descendente)
-        desviacion_estandar = calcular_desviacion_estandar(poblacion_descendente)
+    cromosomas_seleccionados = funcion_seleccion(poblacion)
+    nueva_generacion = calcular_crossover(poblacion, cromosomas_seleccionados)
+    calcular_mutacion(nueva_generacion)
 
-        if metodo == "elitismo":
-            elite = elitismo(poblacion_descendente) # Recordar que se puede variar el K, esta hardcodeado a 2 por el cvg
+    calcular_fitness(nueva_generacion)
 
-        cromosomas_seleccionados = funcion_seleccion(poblacion_descendente)
-        nueva_generacion = calcular_crossover(poblacion_descendente, cromosomas_seleccionados)
-        calcular_mutacion(nueva_generacion)
+    if metodo == "elitismo":
+        nueva_generacion.sort(key=lambda x: x[2])
+        nueva_generacion[:len(elite)] = elite
 
-        if metodo == "elitismo":
-            nueva_generacion.sort(key=lambda x: x[2])
-            nueva_generacion[:len(elite)] = elite
+    mejor_cromosoma, peor_cromosoma, promedio, desviacion_estandar_fitness = calcular_resultados(nueva_generacion)
 
-        mejor_cromosoma = calcular_resultados(poblacion_descendente, mejores_por_poblacion, mejor_cromosoma)
-        poblacion_descendente = nueva_generacion
+    for individuo in nueva_generacion:
+        individuo[3] = desviacion_estandar_fitness
 
-    return mejores_por_poblacion, mejor_cromosoma
+    return nueva_generacion, mejor_cromosoma, peor_cromosoma, promedio, desviacion_estandar_fitness
+
+
+def generar_poblacion_inicial():
+    poblacion_inicial = [] # cromosoma, numero_decimal, fitness, desviacion_estandar_fitness
+    for _ in range(tamanio_poblacion):
+        cromosoma = [random.randint(0, 1) for _ in range(longitud_cromosoma)]
+        numero_decimal = pasar_a_decimal(cromosoma)
+        poblacion_inicial.append([cromosoma, numero_decimal, 0.0, 0.0]) #cromosoma, numero_decimal, fitness, desviacion_estandar_fitness
+    
+    calcular_fitness(poblacion_inicial)
+
+    desviacion_estandar_fitness = calcular_desviacion_estandar_fitness(poblacion_inicial)
+
+    for individuo in poblacion_inicial:
+        individuo[3] = desviacion_estandar_fitness
+
+    return poblacion_inicial
+
 
 def parsear_argumentos():
     parser = argparse.ArgumentParser(description="Algoritmo Genético para optimización de función")
-    parser.add_argument("--corridas", type=int, default=20, choices=[20, 100, 200], help="Cantidad de veces que se ejecuta el algoritmo completo (default: 20)")
     parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo", "elitismo"], help="Método de selección: ruleta | torneo | elitismo (default: ruleta)")
     return parser.parse_args()
 
