@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from operadores import calcular_funcion_objetivo
+from funciones_auxiliares import calcular_funcion_objetivo
 
 
 def generar_grafica(resultados_todas_corridas, metodo, corridas, ciclos):

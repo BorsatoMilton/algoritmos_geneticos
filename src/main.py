@@ -1,8 +1,8 @@
 import random
 import statistics
-from condiciones import (longitud_cromosoma, tamanio_poblacion, corridas)
-from operadores import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_funcion_objetivo, calcular_desviacion_estandar_fitness, calcular_resultados)
-from seleccion import calcular_ruleta, seleccion_torneo, elitismo
+from variables_globales import (longitud_cromosoma, tamanio_poblacion, corridas)
+from funciones_auxiliares import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_funcion_objetivo, calcular_desviacion_estandar_fitness, calcular_resultados)
+from metodos_seleccion import calcular_ruleta, seleccion_torneo, elitismo
 import argparse
 import time
 

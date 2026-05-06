@@ -1,5 +1,5 @@
 import random
-from condiciones import prob_crossover, prob_mutacion
+from variables_globales import prob_crossover, prob_mutacion
 import statistics
 
 
