@@ -1,5 +1,7 @@
 import random
 from condiciones import prob_crossover, prob_mutacion
+import statistics
+
 
 def pasar_a_decimal(cromosoma):
     numero = 0
@@ -7,9 +9,11 @@ def pasar_a_decimal(cromosoma):
         numero += cromosoma[i] * (2 ** (len(cromosoma) - 1 - i))
     return numero
 
+
 def calcular_funcion_objetivo(numero):
     coef = 2**30 - 1
     return (numero/coef)**2
+
 
 def sumatoria_funcion_objetivo(poblacion):
     sumatoria = 0
@@ -17,11 +21,18 @@ def sumatoria_funcion_objetivo(poblacion):
         sumatoria += calcular_funcion_objetivo(poblacion[i][1])
     return sumatoria
 
+
 def calcular_fitness(poblacion):
     sumatoria = sumatoria_funcion_objetivo(poblacion)
     for i in range(len(poblacion)):
         fitness = calcular_funcion_objetivo(poblacion[i][1]) / sumatoria
         poblacion[i][2] = fitness
+
+
+def calcular_desviacion_estandar_fitness(poblacion):
+    fitness_valores = [individuo[2] for individuo in poblacion]
+    return statistics.stdev(fitness_valores) if len(fitness_valores) > 1 else 0 # Si solo hay un individuo, la desviación estándar es 0
+
 
 def calcular_crossover(poblacion, lista_cromosomas_seleccionados):
     nueva_generacion = []
@@ -31,12 +42,13 @@ def calcular_crossover(poblacion, lista_cromosomas_seleccionados):
             punto_corte = random.randint(1, len(poblacion[i][0]) - 1)
             hijo_1 = lista_cromosomas_seleccionados[i][0][:punto_corte] + lista_cromosomas_seleccionados[i+1][0][punto_corte:]
             hijo_2 = lista_cromosomas_seleccionados[i+1][0][:punto_corte] + lista_cromosomas_seleccionados[i][0][punto_corte:]
-            nueva_generacion.append([hijo_1, pasar_a_decimal(hijo_1), 0.0])
-            nueva_generacion.append([hijo_2, pasar_a_decimal(hijo_2), 0.0])
+            nueva_generacion.append([hijo_1, pasar_a_decimal(hijo_1), 0.0, 0.0])
+            nueva_generacion.append([hijo_2, pasar_a_decimal(hijo_2), 0.0, 0.0])
         else:
             nueva_generacion.append(lista_cromosomas_seleccionados[i])
             nueva_generacion.append(lista_cromosomas_seleccionados[i+1])
     return nueva_generacion
+
 
 def calcular_mutacion(nueva_generacion):
     for i in range(len(nueva_generacion)):
@@ -46,3 +58,12 @@ def calcular_mutacion(nueva_generacion):
             nueva_generacion[i][0][punto_mutacion] = 1 - nueva_generacion[i][0][punto_mutacion]
             nueva_generacion[i][1] = pasar_a_decimal(nueva_generacion[i][0])
 
+
+def calcular_resultados(nueva_generacion):
+    mejor_cromosoma_poblacion = max(nueva_generacion, key=lambda x: calcular_funcion_objetivo(x[1]))
+    peor_cromosoma_poblacion = min(nueva_generacion, key=lambda x: calcular_funcion_objetivo(x[1]))
+
+    promedio_cromosomas_poblacion = statistics.mean(calcular_funcion_objetivo(nueva_generacion[i][1]) for i in range(len(nueva_generacion)))
+    desviacion_estandar_fitness = calcular_desviacion_estandar_fitness(nueva_generacion)
+
+    return mejor_cromosoma_poblacion, peor_cromosoma_poblacion, promedio_cromosomas_poblacion, desviacion_estandar_fitness
