@@ -1,11 +1,11 @@
 import random
 import statistics
+import argparse
+import time
 from variables_globales import (longitud_cromosoma, tamanio_poblacion, corridas)
 from funciones_auxiliares import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_funcion_objetivo, calcular_desviacion_estandar_fitness, calcular_resultados)
 from metodos_seleccion import calcular_ruleta, seleccion_torneo, elitismo
-import argparse
-import time
-
+from graficas import graficar_resultados
 
 class impresion_tablas:
     def __init__(self):
@@ -14,6 +14,24 @@ class impresion_tablas:
         self.promedios = {20:None, 100:None, 200:None}
         self.desviacion_estandar_fitness = {20:None, 100:None, 200:None}
         self.tiempos_de_ejecucion = {20:None, 100:None, 200:None}
+
+        self.maximos_generacion = {
+            20:[],
+            100:[],
+            200:[]
+        }
+
+        self.minimos_generacion = {
+            20:[],
+            100:[],
+            200:[]
+        }
+
+        self.promedios_generacion = {
+            20:[],
+            100:[],
+            200:[]
+        }
 
 
 def main():
@@ -57,8 +75,28 @@ def main():
             if tabla_impresion.minimos[cant_corridas] is None or calcular_funcion_objetivo(peor_cromosoma[1]) < calcular_funcion_objetivo(tabla_impresion.minimos[cant_corridas][1]):
                 tabla_impresion.minimos[cant_corridas] = peor_cromosoma
 
+            tabla_impresion.maximos_generacion[cant_corridas].append(
+                calcular_funcion_objetivo(mejor_cromosoma[1])
+            )
+
+            tabla_impresion.minimos_generacion[cant_corridas].append(
+                calcular_funcion_objetivo(peor_cromosoma[1])
+            )
+
+            tabla_impresion.promedios_generacion[cant_corridas].append(
+                promedio
+            )
+
             poblacion_descendente = nueva_generacion
-    
+
+        graficar_resultados(
+            range(cant_corridas - 1),
+            tabla_impresion.maximos_generacion[cant_corridas],
+            tabla_impresion.minimos_generacion[cant_corridas],
+            tabla_impresion.promedios_generacion[cant_corridas],
+            cant_corridas
+        )
+
         tabla_impresion.promedios[cant_corridas] = statistics.mean(promedio_por_corrida[i][1] for i in range(len(promedio_por_corrida))) #promedio de los promedios de esta corrida
         tabla_impresion.desviacion_estandar_fitness[cant_corridas] = statistics.mean(desviacion_estandar_fitness_por_corrida[i][1] for i in range(len(desviacion_estandar_fitness_por_corrida))) #promedio de las desviaciones estandar de esta corrida
 
@@ -72,7 +110,6 @@ def main():
         print(f"Mejor cromosoma: {tabla_impresion.maximos[cant_corridas]} \nPeor cromosoma: {tabla_impresion.minimos[cant_corridas]} \nPromedio: {tabla_impresion.promedios[cant_corridas]:.6f} \nDesviación estándar del fitness: {tabla_impresion.desviacion_estandar_fitness[cant_corridas]:.6f} \nTiempo de ejecución: {tabla_impresion.tiempos_de_ejecucion[cant_corridas]:.6f} segundos")
     
     # FALTAN GRÁFICAS   
-
 
 def ejecutar_corrida(metodo, poblacion):
 
