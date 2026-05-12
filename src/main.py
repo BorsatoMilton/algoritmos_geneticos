@@ -108,8 +108,7 @@ def main():
         print("______________________________________")
         print(f"\nCorridas: {cant_corridas}")
         print(f"Mejor cromosoma: {tabla_impresion.maximos[cant_corridas]} \nPeor cromosoma: {tabla_impresion.minimos[cant_corridas]} \nPromedio: {tabla_impresion.promedios[cant_corridas]:.6f} \nDesviación estándar del fitness: {tabla_impresion.desviacion_estandar_fitness[cant_corridas]:.6f} \nTiempo de ejecución: {tabla_impresion.tiempos_de_ejecucion[cant_corridas]:.6f} segundos")
-    
-    # FALTAN GRÁFICAS   
+ 
 
 def ejecutar_corrida(metodo, poblacion):
 
@@ -118,20 +117,20 @@ def ejecutar_corrida(metodo, poblacion):
     elif metodo == "torneo":
         funcion_seleccion = lambda poblacion: seleccion_torneo(poblacion, k=3)
     elif metodo == "elitismo":
-        funcion_seleccion = elitismo
-    
-    if metodo == "elitismo":
-        elite = elitismo(poblacion) # Recordar que se puede variar el K, esta hardcodeado a 2 por el cvg
+        funcion_seleccion = calcular_ruleta  # use ruleta para seleccionar padres, puede ser torneo tamb, o poner un random y ver
 
-    cromosomas_seleccionados = funcion_seleccion(poblacion)
+
+    if metodo == "elitismo":
+        elite = elitismo(poblacion) 
+
+    cromosomas_seleccionados = funcion_seleccion(poblacion) 
     nueva_generacion = calcular_crossover(poblacion, cromosomas_seleccionados)
     calcular_mutacion(nueva_generacion)
-
     calcular_fitness(nueva_generacion)
 
     if metodo == "elitismo":
-        nueva_generacion.sort(key=lambda x: x[2])
-        nueva_generacion[:len(elite)] = elite
+        nueva_generacion.sort(key=lambda x: x[2])         
+        nueva_generacion[:len(elite)] = elite               
 
     mejor_cromosoma, peor_cromosoma, promedio, desviacion_estandar_fitness = calcular_resultados(nueva_generacion)
 
