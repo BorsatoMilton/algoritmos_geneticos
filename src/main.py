@@ -2,7 +2,7 @@ import random
 import statistics
 import argparse
 import time
-from variables_globales import (longitud_cromosoma, tamanio_poblacion, corridas)
+from variables_globales import (longitud_cromosoma, tamanio_poblacion, corridas, seed)
 from funciones_auxiliares import (pasar_a_decimal, calcular_fitness, calcular_crossover,calcular_mutacion, calcular_funcion_objetivo, calcular_desviacion_estandar_fitness, calcular_resultados)
 from metodos_seleccion import calcular_ruleta, seleccion_torneo, elitismo
 from graficas import graficar_resultados
@@ -37,7 +37,10 @@ class impresion_tablas:
 
 def main():
     args = parsear_argumentos()
-    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | ===\n")
+
+    random.seed(seed)
+    
+    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | Semilla: {seed} ===\n")
 
     tabla_impresion = impresion_tablas()
 
@@ -96,6 +99,11 @@ def main():
 
             poblacion_descendente = nueva_generacion
 
+
+        tabla_impresion.promedios[cant_corridas] = statistics.mean(promedio_por_corrida[i][1] for i in range(len(promedio_por_corrida)))
+        tabla_impresion.desviacion_estandar_fitness[cant_corridas] = statistics.mean(desviacion_estandar_fitness_por_corrida[i][1] for i in range(len(desviacion_estandar_fitness_por_corrida)))
+        tabla_impresion.tiempos_de_ejecucion[cant_corridas] = time.perf_counter() - tiempo_inicio
+
         graficar_resultados(
             range(cant_corridas),
             tabla_impresion.maximos_generacion[cant_corridas],
@@ -103,10 +111,6 @@ def main():
             tabla_impresion.promedios_generacion[cant_corridas],
             cant_corridas
         )
-
-        tabla_impresion.promedios[cant_corridas] = statistics.mean(promedio_por_corrida[i][1] for i in range(len(promedio_por_corrida)))
-        tabla_impresion.desviacion_estandar_fitness[cant_corridas] = statistics.mean(desviacion_estandar_fitness_por_corrida[i][1] for i in range(len(desviacion_estandar_fitness_por_corrida)))
-        tabla_impresion.tiempos_de_ejecucion[cant_corridas] = time.perf_counter() - tiempo_inicio
 
     print("Resultados por cantidad de corridas:")
     for cant_corridas in corridas:
