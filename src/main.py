@@ -38,9 +38,12 @@ class impresion_tablas:
 def main():
     args = parsear_argumentos()
 
-    random.seed(seed)
-    
-    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | Semilla: {seed} ===\n")
+    if args.seed is not None:
+        random.seed(args.seed)
+    else:
+        random.seed(seed)
+
+    print(f"\n=== Algoritmo Genético | Método: {args.metodo.upper()} | Semilla: {args.seed} ===\n")
 
     tabla_impresion = impresion_tablas()
 
@@ -169,6 +172,7 @@ def generar_poblacion_inicial():
 def parsear_argumentos():
     parser = argparse.ArgumentParser(description="Algoritmo Genético para optimización de función")
     parser.add_argument("--metodo", type=str, default="ruleta", choices=["ruleta", "torneo", "elitismo"], help="Método de selección: ruleta | torneo | elitismo (default: ruleta)")
+    parser.add_argument("--seed", type=int, default=seed, help=f"Semilla para generación de números aleatorios) (default: {seed})")
     return parser.parse_args()
 
 
