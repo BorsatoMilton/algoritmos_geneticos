@@ -1,5 +1,5 @@
 import random
-from variables_globales import prob_crossover, prob_mutacion
+from max_funcion.variables_globales import prob_crossover, prob_mutacion
 import statistics
 
 

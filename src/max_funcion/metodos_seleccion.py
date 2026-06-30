@@ -5,7 +5,7 @@ def calcular_ruleta(poblacion):
     lista_cromosomas_seleccionados = []
     for i in range(len(poblacion)):
         lista_ruleta.append(poblacion[i][2] + (lista_ruleta[i-1] if i > 0 else 0))
-    
+        
     lista_ruleta[-1] = 1.0
     
     for i in range(len(poblacion)):
