@@ -1,0 +1,84 @@
+\documentclass[12pt, a4paper, twocolumn]{article}
+
+% --- PAQUETES NECESARIOS ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry} % Márgenes exactos de 2,5 cm
+\usepackage{times} % Fuente Times New Roman
+\usepackage{titlesec} % Para cambiar el tamaño de los títulos
+\usepackage{abstract} % Para personalizar el abstract
+
+% --- CONFIGURACIÓN DE FORMATO SEGÚN EL PDF ---
+\setlength{\columnsep}{1cm} % Espacio entre columnas de 1 cm
+\pagestyle{empty} % Sin números de página ni encabezados
+
+% Formato de secciones (Times New Roman, 12, negrita)
+\titleformat{\section}{\normalfont\fontsize{12}{15}\bfseries}{\thesection.}{1em}{}
+
+% --- TÍTULO Y AUTORES ---
+% (Times New Roman, 16, negrita)
+\title{\vspace{-2cm}\fontsize{16}{20}\bfseries Formato para la presentación de Documentos}
+
+% Autores (Times New Roman, 14, negrita) e Institución (12, negrita, cursiva)
+\author{
+    \fontsize{14}{17}\bfseries Apellido/s, Nombre/s \\
+    \fontsize{12}{15}\bfseries\itshape Universidad Tecnológica Nacional, Facultad Regional Buenos Aires
+}
+\date{} % Sin fecha para que no aparezca abajo
+
+\begin{document}
+
+% Generar título (a una sola columna)
+\twocolumn[
+  \begin{center}
+    {\LARGE \bfseries Título de su Proyecto de Investigación\par}
+    \vspace{0.5cm}
+    {\large \bfseries Arach, Mateo Simón; Borsato, Milton Ruben;Dayer, José Ignacio; Marchese, Valentin David\par}
+    \vspace{0.3cm}
+    {\normalsize \bfseries\itshape Universidad Tecnológica Nacional, Facultad Regional Buenos Aires\par}
+    \vspace{1cm}
+  \end{center}
+]
+
+% --- ABSTRACT ---
+\noindent \textbf{\fontsize{10}{12}\selectfont Abstract} \\
+\textit{\fontsize{10}{12}\selectfont
+"El abstract debería ser considerado como una miniversión del artículo". Describe los objetivos del estudio, la metodología usada, los resultados principales del trabajo y sus conclusiones fundamentales. Un abstract tiene típicamente un único párrafo y menos de 250 palabras.
+}
+
+\vspace{0.5cm}
+
+% --- PALABRAS CLAVE ---
+\noindent \textbf{\fontsize{10}{12}\selectfont Palabras Clave} \\
+{\fontsize{10}{12}\selectfont Algoritmos genéticos, optimización, otro tema.}
+
+\vspace{0.5cm}
+
+% --- CUERPO DEL DOCUMENTO ---
+% Todo lo que sigue está en Times New Roman 12
+
+\section*{Introducción}
+La introducción sirve para que los lectores entiendan el contexto en el que se ha originado el trabajo y deja claro cuál es el tema básico. Contiene una descripción clara y precisa del problema que se ha abordado.
+
+\section*{Elementos del Trabajo y metodología}
+Es la parte sustancial del trabajo, el lector debe comprender el método usado con tal detalle que le permita aplicarlo al mismo o a otro problema. Se desarrollan los conceptos explicando la metodología utilizada.
+
+\section*{Resultados}
+Los resultados son los que avalarán las conclusiones y justificarán la utilidad del trabajo realizado. Acá pueden agregar gráficos o tablas.
+
+\section*{Discusión}
+Explica las relaciones, las tendencias, las posibles generalizaciones de los resultados observados, sin dejar de discutir aquellos resultados inesperados.
+
+\section*{Conclusión}
+La conclusión debería ser la versión condensada de las secciones anteriores, presentando los resultados claves encontrados en el trabajo.
+
+\section*{Agradecimientos}
+\fontsize{10}{12}\selectfont
+Si existiera, mencionarlos en forma concisa. Será escrito en fuente tamaño 10.
+\normalsize % Vuelve al tamaño 12
+
+\section*{Referencias}
+\fontsize{10}{12}\selectfont
+[1] Documentación y bibliografía utilizada. Todas las publicaciones citadas deberán incluirse en la lista de referencias.
+
+\end{document}
