@@ -219,9 +219,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# VS Code
-.vscode/
-
 # LaTeX
 *.aux
 *.log
