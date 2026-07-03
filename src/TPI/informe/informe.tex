@@ -12,12 +12,13 @@
 \setlength{\columnsep}{1cm} % Espacio entre columnas de 1 cm
 \pagestyle{empty} % Sin números de página ni encabezados
 
+
 % Formato de secciones (Times New Roman, 12, negrita)
 \titleformat{\section}{\normalfont\fontsize{12}{15}\bfseries}{\thesection.}{1em}{}
 
 % --- TÍTULO Y AUTORES ---
 % (Times New Roman, 16, negrita)
-\title{\vspace{-2cm}\fontsize{16}{20}\bfseries Formato para la presentación de Documentos}
+\title{\vspace{-2cm}\fontsize{16}{20}\bfseries Optimización de la Inclinación y Orientación de Paneles Solares Mediante Algoritmos Genéticos}
 
 % Autores (Times New Roman, 14, negrita) e Institución (12, negrita, cursiva)
 \author{
@@ -26,59 +27,98 @@
 }
 \date{} % Sin fecha para que no aparezca abajo
 
+
 \begin{document}
 
-% Generar título (a una sola columna)
-\twocolumn[
-  \begin{center}
-    {\LARGE \bfseries Título de su Proyecto de Investigación\par}
-    \vspace{0.5cm}
-    {\large \bfseries Arach, Mateo Simón; Borsato, Milton Ruben;Dayer, José Ignacio; Marchese, Valentin David\par}
-    \vspace{0.3cm}
-    {\normalsize \bfseries\itshape Universidad Tecnológica Nacional, Facultad Regional Buenos Aires\par}
-    \vspace{1cm}
-  \end{center}
-]
+\begin{titlepage}
 
-% --- ABSTRACT ---
-\noindent \textbf{\fontsize{10}{12}\selectfont Abstract} \\
-\textit{\fontsize{10}{12}\selectfont
-"El abstract debería ser considerado como una miniversión del artículo". Describe los objetivos del estudio, la metodología usada, los resultados principales del trabajo y sus conclusiones fundamentales. Un abstract tiene típicamente un único párrafo y menos de 250 palabras.
+\centering
+
+{\fontsize{16}{20}\selectfont\bfseries
+Optimización de la Inclinación y Orientación de Paneles Solares Mediante Algoritmos Genéticos\par}
+
+\vspace{1.5cm}
+
+\begin{minipage}{0.9\textwidth}
+\centering
+\begin{tabular}{p{0.45\textwidth} p{0.45\textwidth}}
+
+\centering\textbf{Arach, Mateo Simón} &
+\centering\textbf{Borsato Gimenez, Milton Rubén}\tabularnewline[0.5cm]
+
+\centering Legajo: &
+\centering Legajo: 51391\tabularnewline
+
+\centering Correo: &
+\centering Correo: borsatomilton@gmail.com\tabularnewline[0.8cm]
+
+\centering\textbf{Dayer, José Ignacio} &
+\centering\textbf{Marchese, Valentin David}\tabularnewline[0.5cm]
+
+\centering Legajo: &
+\centering Legajo: 51745\tabularnewline
+
+\centering Correo: &
+\centering Correo: marchese52002@gmail.com\tabularnewline
+
+\end{tabular}
+\end{minipage}
+
+\vspace{1.5cm}
+
+{\fontsize{12}{15}\selectfont\bfseries\itshape
+Universidad Tecnológica Nacional\\
+Facultad Regional Rosario
 }
 
-\vspace{0.5cm}
+\vfill
 
-% --- PALABRAS CLAVE ---
-\noindent \textbf{\fontsize{10}{12}\selectfont Palabras Clave} \\
-{\fontsize{10}{12}\selectfont Algoritmos genéticos, optimización, otro tema.}
+\end{titlepage}
 
-\vspace{0.5cm}
+%==========================
+% A partir de acá, dos columnas
+%==========================
+
+
+\twocolumn
+
+\newpage
 
 % --- CUERPO DEL DOCUMENTO ---
 % Todo lo que sigue está en Times New Roman 12
 
+\noindent\textbf{Palabras Clave}
+
+Algoritmos genéticos, energía solar fotovoltaica, optimización, inclinación y orientación de paneles.
+
 \section*{Introducción}
-La introducción sirve para que los lectores entiendan el contexto en el que se ha originado el trabajo y deja claro cuál es el tema básico. Contiene una descripción clara y precisa del problema que se ha abordado.
+La energía solar fotovoltaica se ha consolidado como una de las principales alternativas para la transición hacia matrices energéticas sostenibles, debido a su bajo impacto ambiental, su costo decreciente de instalación y su capacidad de despliegue tanto en instalaciones residenciales como industriales. Sin embargo, la eficiencia real de un sistema fotovoltaico no depende únicamente de la calidad tecnológica de los paneles, sino también de factores geométricos y ambientales que condicionan la cantidad de radiación solar efectivamente captada. En particular, la inclinación y la orientación de los paneles son variables determinantes del rendimiento energético, y su cálculo mediante fórmulas empíricas o aproximaciones estáticas suele ignorar variaciones estacionales, condiciones climáticas locales y sombras del entorno. Este trabajo tiene como objetivo determinar si un algoritmo genético permite optimizar dichos parámetros para maximizar la generación energética de una instalación fotovoltaica.
 
-\section*{Elementos del Trabajo y metodología}
-Es la parte sustancial del trabajo, el lector debe comprender el método usado con tal detalle que le permita aplicarlo al mismo o a otro problema. Se desarrollan los conceptos explicando la metodología utilizada.
-
+\section*{Denominación del futuro proyecto de investigación}
+Optimización de la inclinación y orientación de paneles solares fotovoltaicos mediante algoritmos genéticos para la maximización de la generación energética.
 \section*{Resultados}
-Los resultados son los que avalarán las conclusiones y justificarán la utilidad del trabajo realizado. Acá pueden agregar gráficos o tablas.
+En esta sección se presentarán los valores de inclinación y orientación obtenidos por el algoritmo genético para el escenario evaluado, junto con la energía estimada generada bajo dicha configuración. Los resultados se contrastarán con los valores de referencia obtenidos mediante el método de cálculo estático tradicional, incluyendo gráficos de la evolución del mejor individuo por generación y tablas comparativas de generación energética entre ambos enfoques.
 
-\section*{Discusión}
-Explica las relaciones, las tendencias, las posibles generalizaciones de los resultados observados, sin dejar de discutir aquellos resultados inesperados.
+\section*{Situación problemática}
+La energía solar fotovoltaica se ha consolidado como una de las principales alternativas para la transición hacia matrices energéticas sostenibles, debido a su bajo impacto ambiental, su costo decreciente de instalación y su capacidad de despliegue tanto en instalaciones residenciales como industriales. Sin embargo, la eficiencia real de un sistema fotovoltaico no depende únicamente de la calidad tecnológica de los paneles, sino también de factores geométricos y ambientales que condicionan la cantidad de radiación solar efectivamente captada.
+ 
+La inclinación (\textit{tilt}) y la orientación (azimut) de los paneles solares son variables determinantes en el rendimiento energético de una instalación. Una configuración inadecuada de estos parámetros puede provocar pérdidas significativas de generación, incluso cuando el resto del sistema —inversores, cableado, paneles— se encuentra correctamente dimensionado. Tradicionalmente, la determinación de estos ángulos se ha realizado mediante fórmulas empíricas o aproximaciones estáticas basadas en la latitud del lugar, sin considerar variaciones estacionales, condiciones climáticas locales, sombras del entorno o el comportamiento no lineal de la radiación solar a lo largo del año.
+\section*{Problema}
+Las instalaciones fotovoltaicas suelen configurarse con ángulos de inclinación y orientación fijos, determinados mediante criterios estáticos o generalizados que no consideran la variabilidad estacional de la radiación solar ni las condiciones específicas del entorno de instalación, lo que deriva en una captación energética subóptima.
 
-\section*{Conclusión}
-La conclusión debería ser la versión condensada de las secciones anteriores, presentando los resultados claves encontrados en el trabajo.
-
-\section*{Agradecimientos}
-\fontsize{10}{12}\selectfont
-Si existiera, mencionarlos en forma concisa. Será escrito en fuente tamaño 10.
-\normalsize % Vuelve al tamaño 12
-
-\section*{Referencias}
-\fontsize{10}{12}\selectfont
-[1] Documentación y bibliografía utilizada. Todas las publicaciones citadas deberán incluirse en la lista de referencias.
+\section*{Objetivos de la Investigación}
+ 
+\subsection*{Objetivo General}
+Desarrollar y evaluar un algoritmo genético capaz de optimizar la inclinación y orientación de paneles solares fotovoltaicos con el fin de maximizar la generación energética de una instalación determinada.
+ 
+\subsection*{Objetivos Específicos}
+\begin{enumerate}
+  \item Analizar los fundamentos teóricos de la radiación solar, la geometría solar y su relación con la inclinación y orientación de los paneles fotovoltaicos.
+  \item Identificar y sistematizar las variables ambientales y geográficas (latitud, estacionalidad, nubosidad, sombreado) que inciden en la generación energética de un sistema fotovoltaico.
+  \item Diseñar un modelo de función objetivo que permita estimar la energía generada en función de los parámetros de inclinación y orientación de los paneles.
+  \item Implementar un algoritmo genético que optimice los parámetros de inclinación y orientación a partir del modelo de función objetivo definido.
+  \item Comparar los resultados obtenidos mediante el algoritmo genético con los valores calculados a través de métodos tradicionales o estáticos de configuración de paneles solares.
+  \item Evaluar el desempeño del algoritmo genético en términos de precisión, tiempo de convergencia y mejora porcentual de la generación energética respecto de las configuraciones bases.
+\end{enumerate}
 
 \end{document}
