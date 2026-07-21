@@ -43,10 +43,9 @@ def crossover_aritmetico(padre1, padre2, alpha=None):
 
 
 def seleccion_torneo(poblacion, fitness, k=3):
-    # Elegir k índices al azar (sin repetir)
+
     indices_candidatos = random.sample(range(len(poblacion)), k)
     
-    # De esos índices, encontrar el que tiene mejor fitness
     mejor_indice = max(indices_candidatos, key=lambda i: fitness[i])
     
     return poblacion[mejor_indice]

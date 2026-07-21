@@ -27,7 +27,7 @@ def ejecutar_optimizacion(datos_clima, pop_size=20, n_generaciones=30):
             
             # Crossover
 
-            if random.random() < 0.85:  # 90% de probabilidad de crossover
+            if random.random() < 0.85:  
                 hijo1, hijo2 = crossover_aritmetico(padre1, padre2)
             else:
                 hijo1, hijo2 = padre1.copy(), padre2.copy()
