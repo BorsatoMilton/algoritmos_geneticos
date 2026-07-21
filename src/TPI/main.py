@@ -36,8 +36,8 @@ def ejecutar_optimizacion(datos_clima, pop_size=20, n_generaciones=30):
             # Mutación
             if random.random() < 0.15: 
                 hijo1 += np.random.normal(0, 5, size=2)
-                hijo1[0] = np.clip(hijo1[0], 0, 90)    # lat entre 0 y 90
-                hijo1[1] = np.clip(hijo1[1], 0, 360)   # lon entre 0 y 360
+                hijo1[0] = np.clip(hijo1[0], 0, 90)  
+                hijo1[1] = np.clip(hijo1[1], 0, 360)   
 
             if random.random() < 0.15:  
                 hijo2 += np.random.normal(0, 5, size=2)
