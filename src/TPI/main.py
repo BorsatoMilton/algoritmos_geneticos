@@ -2,15 +2,21 @@ import random
 import numpy as np
 from pvlib.iotools import get_pvgis_tmy
 from funciones import crossover_aritmetico, seleccion_torneo, calcular_energia_anual
+import pvlib
 
 
-def ejecutar_optimizacion(datos_clima, pop_size=20, n_generaciones=30):
+
+def ejecutar_optimizacion(datos_clima, latitude, longitude, pop_size=100, n_generaciones=30):
     # [inclinación, azimut]
     poblacion = np.random.rand(pop_size, 2) * [90, 360]
+
+    sol = pvlib.solarposition.get_solarposition(time=datos_clima.index, latitude=latitude, longitude=longitude) 
+    dni_extra = pvlib.irradiance.get_extra_radiation(datos_clima.index)
+    airmass = pvlib.atmosphere.get_relative_airmass(sol['apparent_zenith'])
     
     for gen in range(n_generaciones):
 
-        fitness = np.array([calcular_energia_anual(ind, datos_clima) for ind in poblacion])
+        fitness = np.array([calcular_energia_anual(ind, datos_clima, sol, dni_extra, airmass, perdidas_sistema=0.14, potencia_pico_kwp=1.0) for ind in poblacion])
         
 
         indices_ordenados = np.argsort(fitness)[::-1]
@@ -20,7 +26,7 @@ def ejecutar_optimizacion(datos_clima, pop_size=20, n_generaciones=30):
 
         nueva_poblacion = [poblacion[0], poblacion[1]] 
         
-        while len(nueva_poblacion) <= pop_size:
+        while len(nueva_poblacion) < pop_size:
 
             padre1 = seleccion_torneo(poblacion, fitness)
             padre2 = seleccion_torneo(poblacion, fitness)
@@ -56,7 +62,10 @@ def ejecutar_optimizacion(datos_clima, pop_size=20, n_generaciones=30):
 
 
 def main():
-    data, meta = get_pvgis_tmy(latitude=-32.94, longitude=-60.63, usehorizon=True, coerce_year=2025) 
+    latitude = -32.94
+    longitude = -60.63
+
+    data, meta = get_pvgis_tmy(latitude=latitude, longitude=longitude, usehorizon=True, coerce_year=2025) 
     # devuelve un dataFrame con temperatura aure, humedad, ghi, dni, dhi, IR(h), vel viento, direccion viento, presion.
 
     data = data.rename(columns={
@@ -71,7 +80,7 @@ def main():
         "pressure": "presion",
     })
 
-    mejor_config = ejecutar_optimizacion(data)
+    mejor_config = ejecutar_optimizacion(data, latitude, longitude)
     print(f"Inclinación: {mejor_config[0]:.2f}, Azimut: {mejor_config[1]:.2f}")
 
 
