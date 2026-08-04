@@ -2,11 +2,14 @@
 
 % --- PAQUETES NECESARIOS ---
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
 \usepackage[spanish]{babel}
 \usepackage[margin=2.5cm]{geometry} % Márgenes exactos de 2,5 cm
 \usepackage{times} % Fuente Times New Roman
 \usepackage{titlesec} % Para cambiar el tamaño de los títulos
 \usepackage{abstract} % Para personalizar el abstract
+\usepackage{amsmath} % Para las ecuaciones del marco teórico
 
 % --- CONFIGURACIÓN DE FORMATO SEGÚN EL PDF ---
 \setlength{\columnsep}{1cm} % Espacio entre columnas de 1 cm
@@ -15,6 +18,10 @@
 
 % Formato de secciones (Times New Roman, 12, negrita)
 \titleformat{\section}{\normalfont\fontsize{12}{15}\bfseries}{\thesection.}{1em}{}
+% Formato de subsecciones (Times New Roman, 12, negrita) - para el Marco Teórico
+\titleformat{\subsection}{\normalfont\fontsize{12}{15}\bfseries}{}{0em}{}
+% Formato de subsubsecciones (Times New Roman, 12, negrita cursiva) - para el Marco Teórico
+\titleformat{\subsubsection}{\normalfont\fontsize{12}{15}\bfseries\itshape}{}{0em}{}
 
 % --- TÍTULO Y AUTORES ---
 % (Times New Roman, 16, negrita)
@@ -117,5 +124,224 @@ Desarrollar y evaluar un algoritmo genético capaz de optimizar la inclinación 
   \item Comparar los resultados obtenidos mediante el algoritmo genético con los valores calculados a través de métodos tradicionales o estáticos de configuración de paneles solares.
   \item Evaluar el desempeño del algoritmo genético en términos de precisión, tiempo de convergencia y mejora porcentual de la generación energética respecto de las configuraciones bases.
 \end{enumerate}
+
+\section*{Marco Teórico}
+
+En este capítulo se presentan los fundamentos conceptuales sobre los que se apoya el presente trabajo. En primer lugar se desarrollan los principios de los algoritmos genéticos y sus operadores fundamentales, ya que constituyen el método de optimización elegido para resolver el problema planteado. En segundo lugar se abordan los conceptos de radiación y geometría solar, necesarios para comprender cómo se estima la energía disponible sobre una superficie inclinada en función de su ubicación, orientación y del instante del año. Finalmente, se describe el modelo fotovoltaico empleado para traducir la radiación incidente en energía eléctrica generada, junto con los métodos tradicionales de configuración de paneles utilizados como línea de base para la comparación de resultados.
+
+\subsection*{Algoritmos Genéticos}
+
+Los algoritmos genéticos (GA, por sus siglas en inglés) son técnicas de optimización metaheurística inspiradas en los mecanismos de la selección natural y la genética evolutiva propuestos por Charles Darwin. Fueron formalizados por John Holland en la década de 1970 como un método de búsqueda y optimización aplicable a espacios de solución amplios, no lineales y difíciles de resolver mediante métodos analíticos o de gradiente.
+
+A diferencia de los métodos de optimización clásicos, que requieren información sobre la derivada o el gradiente de la función objetivo, los algoritmos genéticos operan únicamente sobre el valor de dicha función, lo cual los hace especialmente adecuados para problemas donde la función objetivo es discontinua, ruidosa, no diferenciable o computacionalmente costosa de derivar analíticamente. Este es precisamente el caso del problema abordado en este trabajo, donde la energía generada por un panel solar depende de un modelo de transposición de radiación y de un modelo térmico que no admiten una expresión analítica simple en función del ángulo de inclinación y orientación.
+
+El funcionamiento general de un algoritmo genético puede resumirse en los siguientes pasos: se genera una población inicial de soluciones candidatas (individuos), se evalúa la aptitud (\textit{fitness}) de cada individuo mediante la función objetivo, se seleccionan los individuos más aptos para reproducirse, se generan nuevos individuos mediante operadores de cruce (\textit{crossover}) y mutación, y se repite el proceso durante un número determinado de generaciones o hasta alcanzar un criterio de convergencia. A lo largo de las generaciones, la población tiende a concentrarse en las regiones del espacio de búsqueda asociadas a mejores valores de aptitud, lo cual permite aproximar el óptimo global del problema.
+
+\subsubsection*{Codificación de individuos}
+
+La codificación define cómo se representan las soluciones candidatas dentro del algoritmo. Existen principalmente dos enfoques: la codificación binaria, en la que cada variable se representa como una cadena de bits, y la codificación real (\textit{real-valued encoding}), en la que cada variable se representa directamente como un número de punto flotante.
+
+Para problemas cuyas variables de decisión son inherentemente continuas, como es el caso del ángulo de inclinación y del ángulo de azimut de un panel solar, la codificación real resulta más natural y eficiente. Evita las pérdidas de precisión asociadas a la discretización binaria y permite aplicar operadores de cruce y mutación adaptados específicamente a variables continuas, como el cruce aritmético y la mutación gaussiana, que se describen en las secciones siguientes.
+
+\subsubsection*{Función de aptitud (fitness)}
+
+La función de aptitud, o función de \textit{fitness}, es la métrica que el algoritmo genético utiliza para evaluar la calidad de cada individuo de la población. En un problema de maximización, como el abordado en este trabajo, un mayor valor de \textit{fitness} indica una mejor solución.
+
+En el presente caso, la función de \textit{fitness} asociada a cada individuo (definido por un par de ángulos de inclinación y azimut) es la energía eléctrica anual estimada que generaría un panel fotovoltaico configurado con esos ángulos, calculada a partir de un modelo de transposición de radiación solar y un modelo de conversión fotovoltaica que incorpora las pérdidas térmicas y del sistema. Estos modelos se desarrollan en detalle en las secciones de Radiación Solar y Sistema Fotovoltaico de este capítulo.
+
+\subsection*{Selección}
+
+El operador de selección determina qué individuos de la población actual participarán en la generación de la siguiente generación mediante los operadores de cruce. El objetivo de la selección es favorecer a los individuos con mayor aptitud, sin eliminar por completo la diversidad genética de la población, ya que una presión selectiva demasiado alta puede provocar una convergencia prematura hacia óptimos locales.
+
+Existen diversos métodos de selección, entre los que se destacan la selección por ruleta (donde la probabilidad de selección de un individuo es proporcional a su aptitud relativa), la selección por \textit{ranking} (donde la probabilidad se basa en la posición relativa del individuo ordenado por aptitud, y no en su valor absoluto) y la selección por torneo.
+
+\subsubsection*{Selección por torneo}
+
+La selección por torneo consiste en elegir aleatoriamente un subconjunto de $k$ individuos de la población (denominado tamaño del torneo) y seleccionar como ganador al de mayor aptitud dentro de ese subconjunto. Este proceso se repite tantas veces como individuos se necesiten para conformar la siguiente generación.
+
+La principal ventaja de este método radica en su simplicidad computacional y en que el parámetro $k$ permite ajustar de manera directa la presión selectiva del algoritmo: valores bajos de $k$ (por ejemplo, $k=2$) generan una presión selectiva moderada, favoreciendo la exploración del espacio de búsqueda, mientras que valores más altos incrementan la probabilidad de que los individuos más aptos dominen la selección, acelerando la convergencia a costa de una menor diversidad genética.
+
+\subsection*{Crossover}
+
+El operador de cruce, o \textit{crossover}, combina la información genética de dos individuos seleccionados (padres) para generar uno o más nuevos individuos (hijos). Es el operador principal mediante el cual el algoritmo explota la información ya adquirida por la población, combinando características de soluciones prometedoras para intentar generar soluciones aún mejores.
+
+Para codificaciones reales, uno de los métodos más utilizados es el cruce aritmético, en el cual cada gen del hijo se obtiene como una combinación lineal convexa de los genes correspondientes de ambos padres, ponderada por un coeficiente $\alpha$ generado aleatoriamente en el intervalo $[0,1]$ en cada operación de cruce:
+
+\begin{equation}
+    hijo_1 = \alpha \cdot padre_1 + (1-\alpha) \cdot padre_2
+\end{equation}
+\begin{equation}
+    hijo_2 = (1-\alpha) \cdot padre_1 + \alpha \cdot padre_2
+\end{equation}
+
+Este operador garantiza que los individuos resultantes se ubiquen siempre dentro del segmento que une a ambos padres en el espacio de búsqueda, lo cual resulta apropiado para variables continuas con restricciones de dominio bien definidas, como los ángulos de inclinación (0\textdegree{} a 90\textdegree{}) y azimut (0\textdegree{} a 360\textdegree{}) empleados en este trabajo.
+
+\subsection*{Mutación}
+
+El operador de mutación introduce variaciones aleatorias en los individuos de la población con el objetivo de mantener la diversidad genética y evitar que el algoritmo quede atrapado en óptimos locales. Mientras que el cruce explota la información existente en la población, la mutación cumple un rol exploratorio, permitiendo que el algoritmo acceda a regiones del espacio de búsqueda que no estarían representadas únicamente mediante la combinación de los individuos actuales.
+
+Para codificaciones reales, un enfoque habitual es la mutación gaussiana, en la cual se suma a cada gen del individuo un valor aleatorio extraído de una distribución normal de media cero y desviación estándar $\sigma$ determinada:
+
+\begin{equation}
+    gen' = gen + \mathcal{N}(0, \sigma)
+\end{equation}
+
+El parámetro $\sigma$ controla la magnitud típica de la perturbación introducida: valores altos favorecen una exploración más agresiva del espacio de búsqueda, mientras que valores bajos generan variaciones más sutiles, útiles en etapas avanzadas del proceso evolutivo donde la población ya se encuentra próxima al óptimo. Dado que la mutación puede generar valores fuera del dominio válido de la variable, es habitual aplicar una operación de recorte (\textit{clipping}) que restrinja el resultado a los límites físicos del problema.
+
+La probabilidad de mutación es otro parámetro relevante del algoritmo, ya que determina la fracción esperada de individuos que sufrirán una mutación en cada generación. Una probabilidad de mutación demasiado alta puede degradar el proceso de convergencia al introducir excesivo ruido, mientras que una probabilidad demasiado baja puede resultar insuficiente para escapar de óptimos locales en problemas con paisajes de aptitud complejos.
+
+\subsubsection*{Elitismo}
+
+El elitismo es una estrategia complementaria a los operadores de selección, cruce y mutación, que consiste en preservar de manera directa, sin modificaciones, a los mejores individuos de una generación en la siguiente. De este modo se garantiza que la mejor solución encontrada hasta un momento dado del proceso evolutivo nunca se pierda como consecuencia de los operadores estocásticos de cruce o mutación.
+
+El elitismo constituye una condición habitual para asegurar la convergencia monótona del algoritmo, es decir, que el valor de aptitud del mejor individuo de la población no empeore de una generación a la siguiente, lo cual resulta deseable a la hora de reportar los resultados obtenidos en términos de energía anual generada.
+
+\subsection*{Radiación Solar}
+
+La radiación solar que incide sobre la superficie terrestre es la fuente de energía primaria que un sistema fotovoltaico convierte en energía eléctrica. Su magnitud depende de factores astronómicos (posición del sol respecto de la superficie receptora), atmosféricos (nubosidad, turbidez, contenido de vapor de agua) y geográficos (latitud, altitud, presencia de obstáculos en el horizonte). Comprender cómo se compone y modela esta radiación resulta indispensable para estimar correctamente la energía disponible sobre un panel con una orientación e inclinación determinadas.
+
+\subsubsection*{Componentes de la radiación solar}
+
+La radiación solar que alcanza una superficie se descompone habitualmente en tres componentes:
+
+La irradiancia directa normal (DNI, \textit{Direct Normal Irradiance}) es la radiación que llega directamente desde el disco solar, medida sobre una superficie perpendicular a los rayos solares, sin haber sufrido dispersión atmosférica.
+
+La irradiancia difusa horizontal (DHI, \textit{Diffuse Horizontal Irradiance}) es la radiación que, tras ser dispersada por la atmósfera (moléculas de aire, aerosoles, nubes), llega a la superficie desde todas las direcciones de la bóveda celeste, medida sobre un plano horizontal.
+
+La irradiancia global horizontal (GHI, \textit{Global Horizontal Irradiance}) es la suma de la componente directa proyectada sobre el plano horizontal y la componente difusa horizontal, y representa la radiación total que incide sobre una superficie horizontal.
+
+Estas tres magnitudes constituyen los datos de entrada habituales de las bases de datos meteorológicas y los modelos de radiación solar, y son necesarias para calcular la irradiancia incidente sobre una superficie inclinada con una orientación arbitraria, que en general difiere sustancialmente de la irradiancia medida sobre el plano horizontal.
+
+\subsubsection*{Modelos de transposición a plano inclinado}
+
+Dado que los instrumentos de medición meteorológica registran habitualmente la radiación sobre el plano horizontal, es necesario aplicar un modelo de transposición para estimar la irradiancia que incidiría sobre un plano inclinado con una orientación e inclinación determinadas, como es el caso de un panel fotovoltaico. Estos modelos se diferencian principalmente en el tratamiento que realizan de la componente difusa del cielo.
+
+El modelo isotrópico, el más simple, asume que la radiación difusa se distribuye de manera uniforme en todas las direcciones de la bóveda celeste. Si bien resulta sencillo de implementar, tiende a subestimar la irradiancia real en condiciones de cielo despejado, ya que no captura el incremento de brillo observado en las proximidades del disco solar (efecto circumsolar) ni en el horizonte.
+
+Modelos más sofisticados, como el modelo de Hay-Davies o el modelo de Pérez, incorporan estos efectos adicionales descomponiendo la radiación difusa en múltiples componentes: una componente isotrópica, una componente circumsolar (radiación difusa concentrada alrededor del disco solar producto de la dispersión hacia adelante) y una componente de brillo de horizonte. El modelo de Pérez, ampliamente utilizado en la industria fotovoltaica y adoptado en este trabajo, calcula el peso relativo de cada una de estas componentes a partir de coeficientes empíricos que dependen de la claridad del cielo y del brillo relativo, obtenidos a partir de extensas campañas de medición. Esto le permite alcanzar una precisión sensiblemente superior a la del modelo isotrópico, particularmente en condiciones de cielo parcialmente nublado o con alta proporción de radiación directa.
+
+\subsubsection*{Radiación extraterrestre y masa de aire}
+
+La irradiancia extraterrestre es la radiación solar incidente sobre un plano perpendicular a los rayos solares en el límite superior de la atmósfera terrestre, antes de sufrir ningún tipo de atenuación atmosférica. Su valor varía a lo largo del año debido a la excentricidad de la órbita terrestre, siendo levemente mayor en el perihelio (aproximadamente en enero) que en el afelio (aproximadamente en julio). Esta magnitud se utiliza como referencia en los modelos de transposición, entre ellos el modelo de Pérez, para estimar la fracción de radiación directa disponible antes de la atenuación atmosférica.
+
+La masa de aire (\textit{airmass}) es una medida adimensional de la longitud del trayecto que recorre la radiación solar a través de la atmósfera, en relación con el trayecto mínimo correspondiente al sol en el cenit. A mayor ángulo cenital solar, mayor es la masa de aire atravesada y, en consecuencia, mayor la atenuación sufrida por la componente directa de la radiación debido a la absorción y dispersión atmosférica. La masa de aire relativa es, por lo tanto, un parámetro necesario para los modelos de transposición que buscan estimar con precisión la distribución de la radiación difusa en la bóveda celeste.
+
+\subsection*{Geometría Solar}
+
+La geometría solar describe la posición relativa del sol respecto de un punto de observación en la superficie terrestre, en función de la fecha, la hora y la ubicación geográfica (latitud y longitud). Esta posición determina, junto con la orientación de la superficie receptora, el ángulo de incidencia de la radiación solar y, en consecuencia, la cantidad de energía que dicha superficie es capaz de captar.
+
+\subsubsection*{Declinación Solar}
+
+La declinación solar ($\delta$) es el ángulo formado entre la dirección de los rayos solares al mediodía y el plano ecuatorial terrestre. Su origen se debe a la inclinación del eje de rotación terrestre respecto del plano de la órbita alrededor del sol, aproximadamente 23,45\textdegree{}. La declinación varía de forma continua a lo largo del año, alcanzando su valor máximo positivo en el solsticio de verano del hemisferio norte, su valor mínimo (máximo negativo) en el solsticio de invierno, y valores nulos en los equinoccios. Es, junto con la latitud, uno de los factores geométricos que explican la variación estacional de la energía solar disponible en un punto determinado de la superficie terrestre.
+
+Para su cálculo se utiliza la fórmula de Cooper:
+
+\begin{equation}
+    \delta = 23,45^\circ \cdot \operatorname{sen}\left(\frac{360}{365} \cdot (n + 284)\right)
+\end{equation}
+donde:
+\begin{itemize}
+    \item $\delta$ = declinación solar, en grados
+    \item $n$ = número del día del año
+\end{itemize}
+
+Esta fórmula define la variación de la producción energética entre invierno y verano.
+\subsubsection*{Ángulo Horario}
+
+El ángulo horario ($\omega$) representa el desplazamiento angular del sol respecto del meridiano local, medido en función del tiempo solar. Por convención, el ángulo horario es igual a cero al mediodía solar, negativo en las horas de la mañana y positivo en las horas de la tarde, incrementándose a razón de 15\textdegree{} por hora como consecuencia de la rotación terrestre. El ángulo horario permite determinar, junto con la declinación y la latitud del lugar, la posición instantánea del sol en la bóveda celeste en cualquier momento del día.
+
+\begin{equation}
+    \omega = 15 \cdot (HoraSolar - 12)
+\end{equation}
+
+donde:
+\begin{itemize}
+    \item $\omega$ = ángulo horario, en grados
+    \item $HoraSolar$ = hora del día en formato 24 horas
+\end{itemize}
+
+Esta fórmula define la variación de la producción energética a lo largo de un mismo día.
+\subsubsection*{Altura Solar}
+
+La altura solar o elevación solar ($\alpha$) es el ángulo que forman los rayos solares con el plano horizontal en un punto de observación determinado. Este ángulo varía de manera continua a lo largo del día, siendo nulo en el momento de la salida y la puesta del sol, y alcanzando su valor máximo al mediodía solar. La altura solar depende de la latitud del lugar, la declinación solar correspondiente a la fecha considerada y el ángulo horario correspondiente al instante del día.
+
+\begin{equation}
+    \operatorname{sen}(\alpha) = \operatorname{sen}(L) \cdot \operatorname{sen}(\delta) + \cos(L) \cdot \cos(\delta) \cdot \cos(\omega)
+\end{equation}
+
+donde:
+\begin{itemize}
+    \item $\alpha$ = ángulo de altura solar
+    \item $L$ = latitud del lugar
+    \item $\delta$ = declinación solar
+    \item $\omega$ = ángulo horario
+\end{itemize}
+
+Esta fórmula determina la inclinación ideal del panel solar y el diseño de sombras.
+\subsubsection*{Ángulo Cenital}
+
+El ángulo cenital ($\theta_z$) es el ángulo complementario a la altura solar, medido entre la dirección de los rayos solares y la vertical local (el cenit). Es un parámetro central en los modelos de radiación solar y de masa de aire, ya que determina directamente la trayectoria atmosférica que recorre la radiación directa, así como el ángulo de incidencia sobre superficies horizontales.
+
+\begin{equation}
+  \theta_z = 90^\circ - \alpha
+\end{equation}
+
+donde:
+\begin{itemize}
+    \item $\theta_z$ = ángulo cenital
+    \item $\alpha$ = altura solar
+\end{itemize}
+
+Esta fórmula mide la pérdida por radiación difusa y el espesor de la atmósfera atravesado.
+\subsubsection*{Azimut Solar}
+
+El azimut solar ($\gamma_s$) es el ángulo horizontal que forma la proyección de la dirección del sol sobre el plano horizontal, medido habitualmente desde el sur (o desde el norte, según la convención adoptada) en sentido horario. Este ángulo describe la posición angular del sol respecto de los puntos cardinales en un instante determinado del día, y resulta fundamental para determinar el ángulo de incidencia de la radiación sobre superficies con orientación distinta de la horizontal, como es el caso de un panel fotovoltaico inclinado y orientado en una dirección específica.
+
+La combinación de la posición solar, descrita por el ángulo cenital y el azimut solar, con la orientación de la superficie receptora, descrita por el ángulo de inclinación (\textit{tilt}) y el azimut de la superficie, determina el ángulo de incidencia de la radiación directa sobre el panel, magnitud que interviene de forma directa en los modelos de transposición descriptos anteriormente y, por lo tanto, en la energía eléctrica que el sistema fotovoltaico es capaz de generar.
+
+\begin{equation}
+    \cos(Az) = \frac{\operatorname{sen}(\alpha) \cdot \operatorname{sen}(L) - \operatorname{sen}(\delta)}{\cos(\alpha) \cdot \cos(L)}
+\end{equation}
+
+donde:
+\begin{itemize}
+    \item $Az$ = ángulo azimut solar
+    \item $\alpha$ = altura solar
+    \item $L$ = latitud del lugar
+    \item $\delta$ = declinación solar
+\end{itemize}
+
+Esta fórmula determina la orientación cardinal, es decir, hacia dónde debe apuntar el panel.
+\subsection*{Sistema Fotovoltaico}
+
+Una vez estimada la irradiancia incidente sobre la superficie inclinada del panel, es necesario modelar el proceso mediante el cual dicha radiación se convierte en energía eléctrica. Este proceso está determinado por las características físicas de la celda fotovoltaica y por diversas pérdidas asociadas al sistema completo de generación.
+
+\subsubsection*{Efecto Fotovoltaico}
+
+El efecto fotovoltaico es el fenómeno físico mediante el cual determinados materiales semiconductores, al ser expuestos a la radiación electromagnética, generan una corriente eléctrica. En una celda solar, la energía de los fotones incidentes es absorbida por el material semiconductor (típicamente silicio cristalino), liberando electrones que, gracias a la existencia de un campo eléctrico interno generado por la unión entre capas de distinto dopaje (unión p-n), son forzados a desplazarse en una dirección determinada, generando así una corriente eléctrica utilizable.
+
+\subsubsection*{Modelo de Temperatura de Celda}
+
+La potencia entregada por una celda fotovoltaica no depende únicamente de la irradiancia incidente, sino también de su temperatura de operación, la cual a su vez depende de la irradiancia, la temperatura ambiente y la velocidad del viento, entre otros factores. Para estimar esta temperatura se emplean modelos empíricos, entre los cuales se encuentra el modelo SAPM (\textit{Sandia Array Performance Model}), desarrollado por los laboratorios Sandia National Laboratories.
+
+El modelo SAPM estima la temperatura de la celda fotovoltaica a partir de la irradiancia incidente sobre el plano del panel, la temperatura ambiente y la velocidad del viento, empleando coeficientes empíricos que dependen del tipo de montaje del panel (por ejemplo, montaje sobre estructura abierta con panel de vidrio y parte posterior de vidrio, o montaje integrado sobre techo). Estos coeficientes reflejan las diferencias en la capacidad de disipación térmica asociadas a cada configuración de instalación.
+
+\subsubsection*{Coeficiente de Temperatura de Potencia}
+
+La eficiencia de conversión de las celdas fotovoltaicas de silicio cristalino disminuye a medida que aumenta su temperatura de operación, fenómeno cuantificado mediante el coeficiente de temperatura de potencia ($\gamma_{pdc}$), que expresa la variación porcentual de la potencia entregada por cada grado Celsius de desviación respecto de la temperatura de referencia (habitualmente 25\textdegree{}C, condición de prueba estándar STC). Para tecnologías de silicio cristalino, este coeficiente adopta típicamente valores comprendidos entre $-0,3\%$ y $-0,5\%$ por °C, lo cual implica que, en condiciones de alta irradiancia y elevada temperatura ambiente, la potencia real entregada por el sistema puede resultar sensiblemente inferior a la que se obtendría considerando únicamente la irradiancia incidente.
+
+\subsubsection*{Pérdidas del Sistema}
+
+Además de las pérdidas térmicas descriptas anteriormente, la energía eléctrica finalmente entregada por un sistema fotovoltaico se ve reducida por diversas pérdidas adicionales, agrupadas habitualmente bajo la denominación de pérdidas del balance del sistema (BOS, \textit{Balance of System}). Entre ellas se incluyen las pérdidas óhmicas en el cableado de corriente continua y alterna, la eficiencia de conversión del inversor, el desajuste (\textit{mismatch}) entre módulos con características eléctricas ligeramente distintas, la acumulación de suciedad y polvo sobre la superficie de los paneles, y la degradación gradual de los módulos con el paso del tiempo.
+
+En la práctica, estas pérdidas suelen agregarse en un único factor porcentual aplicado sobre la energía teórica estimada, cuyo valor típico se encuentra en un rango que va aproximadamente del $10\%$ al $20\%$ de la energía generada, dependiendo de la calidad de los componentes del sistema, las condiciones ambientales del sitio de instalación y las prácticas de mantenimiento adoptadas.
+
+\subsection*{Métodos Tradicionales de Configuración de Paneles}
+
+En ausencia de herramientas de optimización específicas, la práctica habitual en la industria fotovoltaica para determinar la inclinación de un panel solar fijo consiste en adoptar un ángulo de inclinación igual al valor absoluto de la latitud del lugar de instalación, orientando el panel hacia el ecuador (es decir, azimut igual a 0\textdegree{} para instalaciones en el hemisferio sur, o 180\textdegree{} para instalaciones en el hemisferio norte, según la convención de referencia utilizada).
+
+Esta heurística se fundamenta en que, en promedio anual, dicha configuración tiende a maximizar la captación de radiación solar directa a lo largo del año, dado que aproxima la orientación del panel a la perpendicular respecto de la posición promedio del sol durante las distintas estaciones. No obstante, se trata de una aproximación que no considera de manera explícita factores como la distribución real de la nubosidad a lo largo del año en el sitio específico de instalación, el sombreado producido por obstáculos del entorno o por otras filas de paneles en instalaciones de gran escala, ni la posible conveniencia de priorizar la generación en determinadas estaciones del año en función del perfil de consumo asociado.
+
+Por estos motivos, esta configuración tradicional constituye una línea de base razonable, ampliamente utilizada y de sencilla implementación, pero no necesariamente óptima, lo cual motiva la exploración de métodos de optimización, como el algoritmo genético desarrollado en este trabajo, capaces de incorporar de manera directa las condiciones climáticas particulares del sitio de instalación a través de datos históricos de radiación solar.
 
 \end{document}
