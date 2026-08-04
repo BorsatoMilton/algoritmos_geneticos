@@ -6,13 +6,12 @@ import pvlib
 
 
 
-def ejecutar_optimizacion(datos_clima, latitude, longitude, pop_size=100, n_generaciones=30):
+
+def ejecutar_optimizacion(datos_clima, latitude, longitude, sol, dni_extra, airmass, pop_size=100, n_generaciones=30):
     # [inclinación, azimut]
     poblacion = np.random.rand(pop_size, 2) * [90, 360]
 
-    sol = pvlib.solarposition.get_solarposition(time=datos_clima.index, latitude=latitude, longitude=longitude) 
-    dni_extra = pvlib.irradiance.get_extra_radiation(datos_clima.index)
-    airmass = pvlib.atmosphere.get_relative_airmass(sol['apparent_zenith'])
+
     
     for gen in range(n_generaciones):
 
@@ -50,7 +49,7 @@ def ejecutar_optimizacion(datos_clima, latitude, longitude, pop_size=100, n_gene
                 hijo2[0] = np.clip(hijo2[0], 0, 90)
                 hijo2[1] = np.clip(hijo2[1], 0, 360)
 
-
+            print("Hijo 1:", hijo1, "Hijo 2:", hijo2)
             nueva_poblacion.append(hijo1)
             nueva_poblacion.append(hijo2)
 
@@ -80,7 +79,25 @@ def main():
         "pressure": "presion",
     })
 
-    mejor_config = ejecutar_optimizacion(data, latitude, longitude)
+    sol = pvlib.solarposition.get_solarposition(time=data.index, latitude=latitude, longitude=longitude) 
+    dni_extra = pvlib.irradiance.get_extra_radiation(data.index)
+    airmass = pvlib.atmosphere.get_relative_airmass(sol['apparent_zenith'])
+
+    mejor_config = ejecutar_optimizacion(data, latitude, longitude, sol, dni_extra, airmass)
+
+    angulos_tradicionales = [abs(latitude), 0.0]  # [32.94, 0.0] PREGUNTARLE A MARINO, no se si esta bien
+    energia_tradicional = calcular_energia_anual(
+        angulos_tradicionales, data, sol, dni_extra, airmass, 0.14, 1.0
+    )
+    energia_optimizada = calcular_energia_anual(
+        mejor_config, data, sol, dni_extra, airmass, 0.14, 1.0
+    )
+
+    ganancia_porcentaje = ((energia_optimizada - energia_tradicional) / energia_tradicional) * 100
+    print(f"\n--- COMPARACIÓN GA vs. TRADICIONAL ---")
+    print(f"Energía método tradicional (32.94°, 0.0°): {energia_tradicional:.2f} kWh/año")
+    print(f"Energía método optimizado  ({mejor_config[0]:.2f}°, {mejor_config[1]:.2f}°): {energia_optimizada:.2f} kWh/año")
+    print(f"Mejora conseguida con GA: {ganancia_porcentaje:.2f}%")
     print(f"Inclinación: {mejor_config[0]:.2f}, Azimut: {mejor_config[1]:.2f}")
 
 
