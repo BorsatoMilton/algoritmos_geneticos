@@ -5,10 +5,9 @@ def busqueda_exhaustiva(objetos, limite_maximo, metrica):
     volumen_maximo = 0
     mejor_combinacion = []
 
+    objetos_invertidos = list(reversed(objetos))
 
-    objetos.reverse()
-
-    cant_objetos = len(objetos)
+    cant_objetos = len(objetos_invertidos)
 
     for i in range(2**cant_objetos):
         vol_actual = 0
@@ -17,8 +16,8 @@ def busqueda_exhaustiva(objetos, limite_maximo, metrica):
         binario = pasar_a_binario(i, cant_objetos)
         for j in range(len(binario)):
             if binario[j] == 1:
-                vol_actual += objetos[j][metrica]
-                valor_actual += objetos[j]["valor"]
+                vol_actual += objetos_invertidos[j][metrica]
+                valor_actual += objetos_invertidos[j]["valor"]
                 
         if vol_actual <= limite_maximo and valor_actual > valor_maximo:
             valor_maximo = valor_actual
@@ -26,14 +25,19 @@ def busqueda_exhaustiva(objetos, limite_maximo, metrica):
             mejor_combinacion = binario
 
     print("Resultados de la búsqueda exhaustiva:")
-
     print(f"Valor máximo: {valor_maximo}")
     print(f"Volumen máximo: {volumen_maximo}")
     print(f"Mejor combinación (binario): {mejor_combinacion}")
     print("Mejor combinación:")
+
+    seleccionados = []
     for i in range(len(mejor_combinacion)):
         if mejor_combinacion[i] == 1:
-            print(f"Objeto {objetos[i]['id']} seleccionado: {metrica} = {objetos[i][metrica]}, Valor = {objetos[i]['valor']}")
+            seleccionados.append(objetos_invertidos[i])
+
+    seleccionados.sort(key=lambda obj: obj["id"])
+    for obj in seleccionados:
+        print(f"Objeto {obj['id']} seleccionado: {metrica} = {obj[metrica]}, Valor = {obj['valor']}")
 
 
 def busqueda_greedy(objetos, limite_maximo, metrica):
