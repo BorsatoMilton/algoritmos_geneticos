@@ -237,3 +237,6 @@ __marimo__/
 
 # Carpeta de compilación
 out/
+
+*.png
+*.csv
