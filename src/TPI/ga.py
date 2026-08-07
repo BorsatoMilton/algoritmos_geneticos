@@ -12,11 +12,7 @@ def ejecutar_optimizacion(
     perdidas_sistema=0.14, potencia_pico_kwp=1.0,
     seed=None, verbose=True
 ):
-    """
-    Ejecuta el GA y devuelve, además del mejor individuo, el historial
-    de convergencia (mejor fitness por generación) y el tiempo total,
-    necesarios para el Objetivo 5 (precisión / convergencia / mejora %).
-    """
+
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)

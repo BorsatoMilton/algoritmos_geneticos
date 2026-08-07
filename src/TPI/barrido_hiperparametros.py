@@ -1,38 +1,30 @@
-"""
-Barrido de hiperparámetros para el Objetivo 5.
-Compara distintas configuraciones de (pop_size, n_generaciones) en términos de:
-  - tiempo de cómputo
-  - calidad de la solución (energía obtenida)
-  - precisión (desvío estándar entre corridas repetidas por configuración)
-
-Genera: barrido_hiperparametros.csv y grafico_tiempo_vs_calidad.png
-"""
-
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from ga import ejecutar_optimizacion
 from funciones import calcular_energia_anual
-from evaluar_objetivo import cargar_datos_clima, LATITUDE, LONGITUDE, PERDIDAS_SISTEMA, POTENCIA_PICO_KWP
+from config import cargar_datos_clima, ANGULOS_TRADICIONALES, PERDIDAS_SISTEMA, POTENCIA_PICO_KWP
 
 # Configuraciones a comparar: (pop_size, n_generaciones)
 CONFIGURACIONES = [
     (20, 10),
     (20, 30),
     (50, 20),
-    (100, 30),   # configuración "grande" de referencia
+    (100, 30),  
 ]
-REPETICIONES_POR_CONFIG = 5  # corridas por configuración, para medir precisión
+REPETICIONES_POR_CONFIG = 5  # corridas por config
+carpeta_resultados = "graficos"
+os.makedirs(carpeta_resultados, exist_ok=True)
 
 
 def main():
-    print("Descargando datos climáticos...")
-    datos_clima, sol, dni_extra, airmass = cargar_datos_clima(LATITUDE, LONGITUDE)
+    print("Descargando/generando TMY...")
+    datos_clima, sol, dni_extra, airmass = cargar_datos_clima()
 
-    angulos_tradicionales = [abs(LATITUDE), 0.0]
     energia_tradicional = calcular_energia_anual(
-        angulos_tradicionales, datos_clima, sol, dni_extra, airmass,
+        ANGULOS_TRADICIONALES, datos_clima, sol, dni_extra, airmass,
         PERDIDAS_SISTEMA, POTENCIA_PICO_KWP
     )
 
@@ -74,11 +66,12 @@ def main():
         })
 
     df = pd.DataFrame(filas)
-    df.to_csv("barrido_hiperparametros.csv", index=False)
+    ruta_csv = os.path.join(carpeta_resultados, "barrido_hiperparametros.csv")
+    df.to_csv(ruta_csv, index=False)
     print("\n=== TABLA RESUMEN ===")
     print(df.to_string(index=False))
 
-    # Gráfico: tiempo vs. calidad, tamaño de punto = precisión (menor std = más chico)
+    # Grafico: tiempo contra calidad, tamaño de punto = precisión (menor std = más chico)
     plt.figure(figsize=(7, 5))
     for _, row in df.iterrows():
         plt.scatter(row["tiempo_medio_seg"], row["energia_media_kwh"],
@@ -91,7 +84,8 @@ def main():
     plt.title("Trade-off: tiempo de cómputo vs. calidad de solución")
     plt.legend(fontsize=8)
     plt.tight_layout()
-    plt.savefig("grafico_tiempo_vs_calidad.png", dpi=150)
+    ruta_archivo = os.path.join(carpeta_resultados, "grafico_tiempo_vs_calidad.png")
+    plt.savefig(ruta_archivo, dpi=150)
     plt.close()
 
     print("\nArchivos generados: barrido_hiperparametros.csv, grafico_tiempo_vs_calidad.png")
