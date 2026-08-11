@@ -44,11 +44,13 @@ def main():
         )
         ganancia_pct = ((energia_optimizada - energia_tradicional) / energia_tradicional) * 100
 
-        # Generación en la que se alcanza el 99% del valor final
         umbral = 0.99 * historial[-1]
-        gen_convergencia = next(
-            (g for g, v in enumerate(historial) if v >= umbral), len(historial) - 1
-        )
+        gen_convergencia = len(historial) - 1
+
+        for g, v in enumerate(historial):
+            if v >= umbral:
+                gen_convergencia = g
+                break
 
         resultados.append({
             "semilla": seed,

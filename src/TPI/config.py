@@ -15,13 +15,13 @@ def cargar_datos_clima(latitude=LATITUDE, longitude=LONGITUDE):
 
     data = data.rename(columns={
         "temp_air": "temperatura_aire",
-        "relative_humidity": "humedad_relativa",
+        "relative_humidity": "humedad_relativa", # No se utiliza en calculos, esta renombrado asi se renombra todo
         "ghi": "radiacion_global_horizontal",
         "dni": "radiacion_directa_normal",
         "dhi": "radiacion_difusa_horizontal",
-        "IR(h)": "radiacion_infrarroja",
+        "IR(h)": "radiacion_infrarroja", # No se utiliza en calculos, esta renombrado asi se renombra todo
         "wind_speed": "velocidad_viento",
-        "wind_direction": "direccion_viento",
+        "wind_direction": "direccion_viento", # No se utiliza en calculos, esta renombrado asi se renombra todo
         "pressure": "presion",
     })
 

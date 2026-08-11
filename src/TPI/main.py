@@ -5,8 +5,6 @@ from config import (
     PERDIDAS_SISTEMA, POTENCIA_PICO_KWP
 )
 
-# Configuración elegida según el barrido de hiperparámetros (ver
-# barrido_hiperparametros.py): pop_size=50 / n_generaciones=20 da el mejor resultado a ojo
 POP_SIZE = 50
 N_GENERACIONES = 20
 
