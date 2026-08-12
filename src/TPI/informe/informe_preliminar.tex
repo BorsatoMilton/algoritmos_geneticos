@@ -103,7 +103,7 @@ Desarrollar un algoritmo genético que determine el ángulo de inclinación ópt
 En esta sección se exponen los pilares teóricos en los que se fundamenta la investigación: la estructura funcional de los algoritmos genéticos continuos, el modelo anisotrópico de radiación solar y el modelo de comportamiento térmico-eléctrico del silicio.
 
 \subsection{Algoritmos Genéticos y Evolución Computacional}
-Los Algoritmos Genéticos (AG), desarrollados por John Holland \cite{holland1975adaptation}, son técnicas de optimización inspiradas en la evolución natural. Resultan especialmente eficaces en problemas complejos donde no existe una fórmula directa para despejar la solución ideal y se requiere evaluar múltiples combinaciones mediante simulaciones numéricas.
+Los Algoritmos Genéticos (AG), desarrollados originalmente por John Holland y sintetizados en tutoriales de referencia como el de Whitley \cite{whitley1994tutorial}, son técnicas de optimización inspiradas en la evolución natural. Resultan especialmente eficaces en problemas complejos donde no existe una fórmula directa para despejar la solución ideal y se requiere evaluar múltiples combinaciones mediante simulaciones numéricas.
 
 \subsubsection{Codificación y Función de Aptitud}
 Se adoptó una \textbf{codificación real}: cada individuo representa una solución mediante el vector
@@ -274,17 +274,17 @@ Como ilustra la Figura \ref{fig:convergencia}, la curva de convergencia promedio
 \end{figure}
 
 \subsection{Interpretación Física y Atmosférica de los Resultados}
-El Algoritmo Genético redujo la inclinación del panel y lo giró ligeramente hacia el Oeste debido a dos factores climáticos y físicos de la zona:
+El Algoritmo Genético incrementó la inclinación del panel por encima de la latitud y lo orientó con un desvío considerable hacia el Este, respondiendo a dos factores climáticos y físicos de la zona:
 
 \begin{enumerate}
-    \item \textbf{Mayor aprovechamiento del verano y radiación difusa:} En esta latitud, el verano ofrece días más largos con el sol muy alto en el cielo. Disminuir la inclinación permite recibir los rayos solares de forma más directa durante la época de mayor recurso y, al mismo tiempo, capta más luz difusa del cielo en días parcialmente nublados.
-    \item \textbf{Aprovechamiento térmico por la tarde:} El punto máximo de radiación solar ocurre cerca del mediodía, pero la temperatura ambiente más alta se registra a media tarde. Orientar el panel ligeramente hacia el Oeste aprovecha las horas de la tarde en las que la temperatura empieza a bajar, lo que reduce las pérdidas por sobrecalentamiento en las celdas y mejora la generación.
+    \item \textbf{Compensación de pérdidas térmicas estivales:} una inclinación más pronunciada que la latitud reduce la exposición directa del panel durante las horas de mayor elevación solar del verano, cuando la celda alcanza sus temperaturas más altas y el coeficiente térmico penaliza más la potencia entregada. A cambio, el panel capta con mayor eficiencia geométrica la radiación de otoño e invierno, cuando el sol está más bajo en el cielo y la penalización térmica es menor.
+    \item \textbf{Aprovechamiento de la claridad matutina:} orientar el panel hacia el Este privilegia la captación de radiación en las horas de la mañana, cuando la temperatura ambiente y de la celda son más bajas. Este patrón es consistente con lo reportado para sitios donde la nubosidad convectiva de la tarde reduce la irradiancia disponible en esas horas, favoreciendo un azimut desviado hacia el Este en lugar del Oeste \cite{lave2011optimum}.
 \end{enumerate}
 
 Obtener esta ganancia de energía no requiere inversión adicional (CAPEX), ya que solo implica ajustar los ángulos del soporte durante la instalación, ofreciendo un beneficio económico directo.
 
 \section{Trabajos Relacionados}
-El diseño clásico de sistemas fotovoltaicos fijos, formalizado en textos de referencia como \cite{duffie2013solar}, se basa en reglas geométricas cerradas (inclinación igual a la latitud) derivadas de un cielo isotrópico ideal, sin optimización posterior. El modelo de transposición de Pérez \cite{perez1990new} y el modelo térmico SAPM \cite{king2004sandia} —ambos ampliamente adoptados en herramientas de simulación de código abierto como \texttt{pvlib} \cite{pvlib}— permitieron superar esa limitación al representar con precisión la radiación difusa anisotrópica y las pérdidas térmicas, pero su uso habitual se limita a la evaluación de configuraciones predefinidas, no a su optimización automática. Los Algoritmos Genéticos, introducidos por Holland \cite{holland1975adaptation}, se han aplicado extensamente a problemas de optimización continua no convexa en ingeniería; sin embargo, su combinación con modelos de radiación y térmicos de alta fidelidad para optimizar conjuntamente inclinación y azimut en instalaciones fijas está mucho menos explorada que los enfoques analíticos o de barrido exhaustivo tradicionales. Este trabajo se diferencia de dichos antecedentes al acoplar directamente un AG de codificación real con una simulación horaria anual completa, en lugar de una aproximación simplificada o estática.
+El diseño clásico de sistemas fotovoltaicos fijos se basa en la regla geométrica de inclinación igual a la latitud y azimut nulo hacia el ecuador, derivada de modelos de cielo despejado \cite{lave2011optimum}. Sin embargo, estudios basados en datos de radiación medidos —y no solo en modelos de cielo despejado— muestran que el ángulo óptimo real puede diferir de la latitud hasta en $10^\circ$ e incluso favorecer azimutes no nulos, dependiendo de patrones locales de nubosidad \cite{lave2011optimum}. El modelo de transposición de Pérez \cite{perez1990new} y el modelo térmico SAPM \cite{king2004sandia} —ambos ampliamente adoptados en herramientas de simulación de código abierto como \texttt{pvlib} \cite{pvlib}— permitieron superar esa limitación al representar con precisión la radiación difusa anisotrópica y las pérdidas térmicas, pero su uso habitual se limita a la evaluación de configuraciones predefinidas, no a su optimización automática. Los Algoritmos Genéticos, formulados originalmente por Holland y documentados en tutoriales de acceso abierto como \cite{whitley1994tutorial}, se han aplicado extensamente a problemas de optimización continua no convexa en ingeniería; sin embargo, su combinación con modelos de radiación y térmicos de alta fidelidad para optimizar conjuntamente inclinación y azimut en instalaciones fijas está mucho menos explorada que los enfoques analíticos o de barrido exhaustivo tradicionales. Este trabajo se diferencia de dichos antecedentes al acoplar directamente un AG de codificación real con una simulación horaria anual completa, en lugar de una aproximación simplificada o estática.
 
 \section{Conclusión y Trabajos Futuros}
 Se demostró que la regla tradicional ($\beta = \text{latitud}$) no alcanza el máximo rendimiento posible porque no considera las pérdidas por temperatura en la celda ni la radiación difusa del cielo. El Algoritmo Genético desarrollado logró un aumento energético del \textbf{+3,37\% anual} en la ciudad de Rosario, elevando la producción de $1625,87\,\text{kWh/año}$ a $1680,74\,\text{kWh/año}$. Además, el método demostró ser rápido y confiable: requirió menos de $5,8$ segundos de cálculo, alcanzó el $99\%$ de la solución óptima antes de la segunda generación y mantuvo resultados consistentes en todas las ejecuciones ($\sigma = 0,05\,\text{kWh}$).
@@ -294,7 +294,6 @@ Como limitación, el estudio analizó una sola ubicación geográfica y una úni
     \item Analizar la ganancia energética mes a mes para identificar las épocas del año con mayor impacto.
     \item Incluir el efecto de sombra entre filas para definir el distanciamiento ideal en plantas solares más grandes.
     \item Evaluar un ajuste de dos posiciones al año (un ángulo para verano y otro para invierno).
-    \item Aplicar optimización multiobjetivo (NSGA-II) para equilibrar la generación de energía con la resistencia de la estructura frente al viento.
 \end{enumerate}
 
 \vspace{0.15cm}
@@ -306,20 +305,20 @@ Como limitación, el estudio analizó una sola ubicación geográfica y una úni
 \setlength{\parskip}{0pt}
 \begin{thebibliography}{9}
 
-\bibitem{holland1975adaptation}
-Holland, J. H. (1975). \textit{Adaptation in Natural and Artificial Systems}. University of Michigan Press.
+\bibitem{whitley1994tutorial}
+Whitley, D. (1994). A genetic algorithm tutorial. \textit{Statistics and Computing}, 4(2), 65-85. \textit{Versión de acceso abierto (Colorado School of Mines):} {\fontsize{7}{8}\selectfont\url{https://wpfiles.mines.edu/samizdat/ga_tutorial/ga_tutorial.ps}}
 
 \bibitem{perez1990new}
-Perez, R., Ineichen, P., Seals, R., Michalsky, J., \& Stewart, R. (1990). Modeling daylight availability and irradiance components from direct and global irradiance. \textit{Solar Energy}, 44(5), 271-289.
+Perez, R., Ineichen, P., Seals, R., Michalsky, J., \& Stewart, R. (1990). Modeling daylight availability and irradiance components from direct and global irradiance. \textit{Solar Energy}, 44(5), 271-289. \textit{Versión de acceso abierto (Univ. de Ginebra):} {\fontsize{7}{8}\selectfont\url{https://archive-ouverte.unige.ch/unige:17206}}
 
 \bibitem{king2004sandia}
-King, D. L., Boyson, W. E., \& Kratochvil, J. A. (2004). \textit{Photovoltaic Array Performance Model}. Sandia National Laboratories, Report SAND2004-3535.
+King, D. L., Boyson, W. E., \& Kratochvil, J. A. (2004). \textit{Photovoltaic Array Performance Model}. Sandia National Laboratories, Report SAND2004-3535. \textit{Informe de dominio público (OSTI.gov):} {\fontsize{7}{8}\selectfont\url{https://www.osti.gov/servlets/purl/919131/}}
 
 \bibitem{pvlib}
-Holmgren, W. F., Hansen, C. W., \& Mikofski, M. A. (2018). pvlib python: a python package for modeling solar energy systems. \textit{Journal of Open Source Software}, 3(29), 884.
+Holmgren, W. F., Hansen, C. W., \& Mikofski, M. A. (2018). pvlib python: a python package for modeling solar energy systems. \textit{Journal of Open Source Software}, 3(29), 884. \textit{Revista de acceso abierto (CC-BY 4.0):} {\fontsize{7}{8}\selectfont\url{https://doi.org/10.21105/joss.00884}}
 
-\bibitem{duffie2013solar}
-Duffie, J. A., \& Beckman, W. A. (2013). \textit{Solar Engineering of Thermal Processes} (4th ed.). Wiley.
+\bibitem{lave2011optimum}
+Lave, M., \& Kleissl, J. (2011). Optimum fixed orientations and benefits of tracking for capturing solar radiation in the continental United States. \textit{Renewable Energy}, 36(3), 1145-1152. \textit{Versión de acceso abierto:} {\fontsize{7}{8}\selectfont\url{http://maeresearch.ucsd.edu/kleissl/pubs/EE0002055_LaveKleisslSE2011_Optimum_fixed_orientatoins_and_benefits_of_tracking_for_capturing_solar_radiation_in_the_continental_United_States.pdf}}
 
 \end{thebibliography}
 
