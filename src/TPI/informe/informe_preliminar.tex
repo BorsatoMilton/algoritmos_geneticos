@@ -58,7 +58,7 @@
 
   \noindent\textbf{\fontsize{10}{12}\selectfont Abstract} \\
   {\fontsize{10}{12}\selectfont\itshape
-  Los métodos tradicionales de instalación fotovoltaica fijan la inclinación en un valor igual a la latitud del lugar y orientan el panel hacia el ecuador, sin considerar la variabilidad estacional de la radiación, la nubosidad ni los efectos térmicos sobre la celda. En este trabajo se desarrolló un Algoritmo Genético (AG) de codificación real para optimizar conjuntamente la inclinación y el azimut de un panel fotovoltaico, usando como función de aptitud la energía anual estimada mediante el modelo de transposición anisotrópico de Pérez y el modelo térmico SAPM, sobre datos horarios de un Año Meteorológico Típico (TMY) de Rosario, Argentina. Se realizó un barrido de hiperparámetros y se evaluó la estabilidad del algoritmo mediante 15 corridas independientes con semillas distintas. La configuración óptima hallada (inclinación $\approx 36,05^\circ$, azimut $\approx 32,32^\circ$) supera en un $+3,37\%$ a la regla tradicional, con dispersión casi nula entre corridas ($\sigma = 0,05\,\text{kWh}$) y convergencia rápida ($99\%$ del óptimo antes de la segunda generación), demostrando que la optimización metaheurística permite ganancias energéticas significativas a costo de instalación nulo.
+  Los métodos tradicionales de instalación fotovoltaica de inclinación fija (\textit{Fixed Tilt}, FT) fijan la inclinación en un valor igual a la latitud del lugar y orientan el panel hacia el ecuador, sin considerar la variabilidad estacional de la radiación, la nubosidad ni los efectos térmicos sobre la celda. En este trabajo se desarrolló un Algoritmo Genético (AG) de codificación real para optimizar conjuntamente la inclinación y el azimut de un panel FT, usando como función de aptitud la energía anual estimada mediante el modelo de transposición anisotrópico de Pérez y el modelo térmico SAPM, sobre datos horarios de un Año Meteorológico Típico (TMY) de Rosario, Argentina. Se realizó un barrido de hiperparámetros y se evaluó la estabilidad del algoritmo mediante 15 corridas independientes con semillas distintas. El ángulo de inclinación óptimo hallado (\textit{Optimal Tilt Angle}, OTA: inclinación $\approx 36,05^\circ$, azimut $\approx 32,32^\circ$) supera en un $+3,37\%$ a la regla tradicional, con dispersión casi nula entre corridas ($\sigma = 0,01\,\text{kWh}$) y convergencia rápida ($99\%$ del óptimo antes de la segunda generación), demostrando que la optimización metaheurística permite ganancias energéticas significativas a costo de instalación nulo.
   \par}
   \vspace{0.15cm}
 
@@ -73,9 +73,9 @@
 \section{Introducción}
 La energía fotovoltaica es fundamental en la transición hacia fuentes limpias gracias a la reducción de costos, su diseño modular y la ausencia de emisiones durante su operación. Sin embargo, su rendimiento no depende únicamente de la eficiencia del panel, sino de cómo se expone ante la trayectoria del sol a lo largo del año.
 
-La posición de un panel plano se define con dos ángulos: la \textbf{inclinación} ($\beta$, entre $0^\circ$ y $90^\circ$ respecto al suelo) y el \textbf{azimut} ($\gamma$, dirección respecto al meridiano local, donde $0^\circ$=Norte, $90^\circ$=Este, $180^\circ$=Sur y $270^\circ$=Oeste).
+La posición de un panel plano se define con dos ángulos: la \textbf{inclinación} ($\beta$, entre $0^\circ$ y $90^\circ$ respecto al suelo) y el \textbf{azimut} ($\gamma$, dirección respecto al meridiano local, donde $0^\circ$=Norte, $90^\circ$=Este, $180^\circ$=Sur y $270^\circ$=Oeste). Este trabajo se enfoca en sistemas de \textbf{inclinación fija} (\textit{Fixed Tilt}, FT), la configuración de montaje más económica y difundida, en contraposición a los sistemas con seguidor de uno (\textit{Single-Axis Tracking}, SAT) o dos ejes (\textit{Dual-Axis Tracking}, DAT), que requieren mayor inversión y mantenimiento.
 
-La regla tradicional para instalaciones fijas propone igualar la inclinación a la latitud ($\beta = |\text{latitud}|$) y orientar el panel hacia el ecuador ($\gamma = 0^\circ$). Aunque es una aproximación práctica, no considera la física real de la atmósfera ni tres factores climáticos clave:
+La regla tradicional para instalaciones FT propone igualar la inclinación a la latitud ($\beta = |\text{latitud}|$) y orientar el panel hacia el ecuador ($\gamma = 0^\circ$). Aunque es una aproximación práctica, no considera la física real de la atmósfera ni tres factores climáticos clave:
 \begin{enumerate}
     \item \textbf{Radiación difusa:} En días nublados, gran parte de la luz no llega recta, sino dispersa desde múltiples puntos del cielo.
     \item \textbf{Desfase térmico:} Las temperaturas más altas ocurren por la tarde (no al mediodía solar), lo que reduce la eficiencia del silicio cuando el panel recibe más radiación.
@@ -217,7 +217,7 @@ La Tabla \ref{tab:barrido} consolida el comportamiento de las cuatro combinacion
 \midrule
 20 & 10 & 1,21 & 1662,25 & 29,35 & +2,23 \\
 20 & 30 & 3,50 & 1669,77 & 21,86 & +2,70 \\
-\textbf{50} & \textbf{20} & \textbf{5,78} & \textbf{1680,73} & \textbf{0,015} & \textbf{+3,374} \\
+\textbf{50} & \textbf{20} & \textbf{5,78} & \textbf{1680,74} & \textbf{0,015} & \textbf{+3,374} \\
 100 & 30 & 17,39 & 1680,75 & 0,00014 & +3,375 \\
 \bottomrule
 \end{tabular}%
@@ -238,12 +238,12 @@ La Tabla \ref{tab:comparacion} presenta los resultados consolidados de las 15 ej
 
 \begin{table}[htbp]
 \centering
-\caption{Comparación entre Método Tradicional y Algoritmo Genético (15 ejecuciones independientes).}
+\caption{Comparación entre configuración FT tradicional y OTA obtenida por el Algoritmo Genético (15 ejecuciones independientes).}
 \label{tab:comparacion}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcc}
 \toprule
-\textbf{Métrica / Parámetro} & \textbf{Tradicional} & \textbf{Algoritmo Genético} \\
+\textbf{Métrica / Parámetro} & \textbf{FT Tradicional} & \textbf{OTA (AG)} \\
 \midrule
 Inclinación ($\beta$) [$^\circ$] & 32,94 & 36,05 $\pm$ 0,11 \\
 Azimut ($\gamma$) [$^\circ$] & 0,00 & 32,32 $\pm$ 0,27 \\
@@ -255,7 +255,7 @@ Gen. Convergencia (99\%) & N/A & 0,7 $\pm$ 0,9 \\
 }
 \end{table}
 
-La baja dispersión entre corridas ($\sigma = 0,05\,\text{kWh}$) valida la estabilidad estocástica del algoritmo y demuestra que la solución no depende de una inicialización favorable.
+La baja dispersión entre corridas ($\sigma = 0,01\,\text{kWh}$) valida la estabilidad estocástica del algoritmo y demuestra que la solución no depende de una inicialización favorable.
 
 \begin{figure}[htbp]
 \centering
@@ -284,16 +284,17 @@ El Algoritmo Genético incrementó la inclinación del panel por encima de la la
 Obtener esta ganancia de energía no requiere inversión adicional (CAPEX), ya que solo implica ajustar los ángulos del soporte durante la instalación, ofreciendo un beneficio económico directo.
 
 \section{Trabajos Relacionados}
-El diseño clásico de sistemas fotovoltaicos fijos se basa en la regla geométrica de inclinación igual a la latitud y azimut nulo hacia el ecuador, derivada de modelos de cielo despejado \cite{lave2011optimum}. Sin embargo, estudios basados en datos de radiación medidos —y no solo en modelos de cielo despejado— muestran que el ángulo óptimo real puede diferir de la latitud hasta en $10^\circ$ e incluso favorecer azimutes no nulos, dependiendo de patrones locales de nubosidad \cite{lave2011optimum}. El modelo de transposición de Pérez \cite{perez1990new} y el modelo térmico SAPM \cite{king2004sandia} —ambos ampliamente adoptados en herramientas de simulación de código abierto como \texttt{pvlib} \cite{pvlib}— permitieron superar esa limitación al representar con precisión la radiación difusa anisotrópica y las pérdidas térmicas, pero su uso habitual se limita a la evaluación de configuraciones predefinidas, no a su optimización automática. Los Algoritmos Genéticos, formulados originalmente por Holland y documentados en tutoriales de acceso abierto como \cite{whitley1994tutorial}, se han aplicado extensamente a problemas de optimización continua no convexa en ingeniería; sin embargo, su combinación con modelos de radiación y térmicos de alta fidelidad para optimizar conjuntamente inclinación y azimut en instalaciones fijas está mucho menos explorada que los enfoques analíticos o de barrido exhaustivo tradicionales. Este trabajo se diferencia de dichos antecedentes al acoplar directamente un AG de codificación real con una simulación horaria anual completa, en lugar de una aproximación simplificada o estática.
+La literatura sobre montaje fotovoltaico suele comparar tres categorías de configuración según su grado de movilidad: inclinación fija (\textit{Fixed Tilt}, FT), seguimiento de un eje (\textit{Single-Axis Tracking}, SAT) y de dos ejes (\textit{Dual-Axis Tracking}, DAT), estas últimas con mayor captación pero también mayor costo e implementación mecánica. Este trabajo se concentra exclusivamente en la categoría FT, buscando maximizar su rendimiento sin recurrir a sistemas de seguimiento. El diseño clásico de sistemas FT se basa en la regla geométrica de inclinación igual a la latitud y azimut nulo hacia el ecuador, derivada de modelos de cielo despejado \cite{lave2011optimum}. Sin embargo, estudios basados en datos de radiación medidos —y no solo en modelos de cielo despejado— muestran que el ángulo óptimo real (\textit{Optimal Tilt Angle}, OTA) puede diferir de la latitud hasta en $10^\circ$ e incluso favorecer azimutes no nulos, dependiendo de patrones locales de nubosidad \cite{lave2011optimum}. El modelo de transposición de Pérez \cite{perez1990new} y el modelo térmico SAPM \cite{king2004sandia} —ambos ampliamente adoptados en herramientas de simulación de código abierto como \texttt{pvlib} \cite{pvlib}— permitieron superar esa limitación al representar con precisión la radiación difusa anisotrópica y las pérdidas térmicas, pero su uso habitual se limita a la evaluación de configuraciones FT predefinidas, no a su optimización automática. Los Algoritmos Genéticos, formulados originalmente por Holland y documentados en tutoriales de acceso abierto como \cite{whitley1994tutorial}, se han aplicado extensamente a problemas de optimización continua no convexa en ingeniería; sin embargo, su combinación con modelos de radiación y térmicos de alta fidelidad para hallar el OTA conjunto de inclinación y azimut está mucho menos explorada que los enfoques analíticos o de barrido exhaustivo tradicionales. Este trabajo se diferencia de dichos antecedentes al acoplar directamente un AG de codificación real con una simulación horaria anual completa, en lugar de una aproximación simplificada o estática.
 
 \section{Conclusión y Trabajos Futuros}
-Se demostró que la regla tradicional ($\beta = \text{latitud}$) no alcanza el máximo rendimiento posible porque no considera las pérdidas por temperatura en la celda ni la radiación difusa del cielo. El Algoritmo Genético desarrollado logró un aumento energético del \textbf{+3,37\% anual} en la ciudad de Rosario, elevando la producción de $1625,87\,\text{kWh/año}$ a $1680,74\,\text{kWh/año}$. Además, el método demostró ser rápido y confiable: requirió menos de $5,8$ segundos de cálculo, alcanzó el $99\%$ de la solución óptima antes de la segunda generación y mantuvo resultados consistentes en todas las ejecuciones ($\sigma = 0,05\,\text{kWh}$).
+Se demostró que la regla FT tradicional ($\beta = \text{latitud}$) no alcanza el máximo rendimiento posible porque no considera las pérdidas por temperatura en la celda ni la radiación difusa del cielo. El Algoritmo Genético desarrollado permitió hallar el OTA del sistema y logró un aumento energético del \textbf{+3,37\% anual} en la ciudad de Rosario, elevando la producción de $1625,87\,\text{kWh/año}$ a $1680,74\,\text{kWh/año}$. Además, el método demostró ser rápido y confiable: requirió menos de $5,8$ segundos de cálculo, alcanzó el $99\%$ de la solución óptima antes de la segunda generación y mantuvo resultados consistentes en todas las ejecuciones ($\sigma = 0,01\,\text{kWh}$).
 
-Como limitación, el estudio analizó una sola ubicación geográfica y una única fila de paneles sin sombras externas. Como trabajos futuros se propone:
+Como limitación, el estudio analizó una sola ubicación geográfica y una única fila de paneles FT sin sombras externas, sin comparar contra sistemas SAT o DAT. Como trabajos futuros se propone:
 \begin{enumerate}
     \item Analizar la ganancia energética mes a mes para identificar las épocas del año con mayor impacto.
     \item Incluir el efecto de sombra entre filas para definir el distanciamiento ideal en plantas solares más grandes.
     \item Evaluar un ajuste de dos posiciones al año (un ángulo para verano y otro para invierno).
+    \item Cuantificar el rédito energético de sistemas SAT y DAT sobre el mismo sitio, para contrastar la ganancia del OTA frente al costo adicional de un sistema con seguimiento.
 \end{enumerate}
 
 \vspace{0.15cm}
