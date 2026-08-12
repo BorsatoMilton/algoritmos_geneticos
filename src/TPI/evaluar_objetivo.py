@@ -84,6 +84,7 @@ def main():
     print("--- Precisión (media ± desvío estándar entre corridas) ---")
     print(f"Inclinación óptima : {df['inclinacion_opt'].mean():.2f}° ± {df['inclinacion_opt'].std():.2f}°")
     print(f"Azimut óptimo      : {df['azimut_opt'].mean():.2f}°  ± {df['azimut_opt'].std():.2f}°")
+    print(f"Energía tradicional: {energia_tradicional:.2f} kWh/año")
     print(f"Energía optimizada : {df['energia_optimizada_kwh'].mean():.2f} ± {df['energia_optimizada_kwh'].std():.2f} kWh/año")
     print(f"Mejora vs. tradic. : {df['ganancia_pct_vs_tradicional'].mean():.2f}% ± {df['ganancia_pct_vs_tradicional'].std():.2f}%")
 

@@ -1,12 +1,14 @@
+import time
 from funciones_auxiliares import pasar_a_binario
 
 def busqueda_exhaustiva(objetos, limite_maximo, metrica):
+    inicio = time.perf_counter()
+
     valor_maximo = 0
     volumen_maximo = 0
     mejor_combinacion = []
 
     objetos_invertidos = list(reversed(objetos))
-
     cant_objetos = len(objetos_invertidos)
 
     for i in range(2**cant_objetos):
@@ -24,10 +26,15 @@ def busqueda_exhaustiva(objetos, limite_maximo, metrica):
             volumen_maximo = vol_actual
             mejor_combinacion = binario
 
+    fin = time.perf_counter()
+
+    tiempo_total = fin - inicio
+
     print("Resultados de la búsqueda exhaustiva:")
     print(f"Valor máximo: {valor_maximo}")
     print(f"Volumen máximo: {volumen_maximo}")
     print(f"Mejor combinación (binario): {mejor_combinacion}")
+    print(f"Tiempo transcurrido (fin - inicio): {tiempo_total:.6f} segundos")
     print("Mejor combinación:")
 
     seleccionados = []
@@ -41,6 +48,8 @@ def busqueda_exhaustiva(objetos, limite_maximo, metrica):
 
 
 def busqueda_greedy(objetos, limite_maximo, metrica):
+    inicio = time.perf_counter()
+
     proporciones = []
     valor_actual = 0
     volumen_actual = 0
@@ -59,13 +68,19 @@ def busqueda_greedy(objetos, limite_maximo, metrica):
             valor_actual += objetos[idx_original]["valor"]
             combinacion_indices.append(idx_original)        
 
+
+    fin = time.perf_counter()
+
+    tiempo_total = fin - inicio
+
     print("----------------------------------------------------")
     print("Resultados de la búsqueda greedy:")
     print(f"Valor máximo: {valor_actual}")
     print(f"Volumen máximo: {volumen_actual}")
+    print(f"Tiempo transcurrido (fin - inicio): {tiempo_total:.6f} segundos")
     print("Mejor combinación:")
 
-    combinacion_indices.sort()
+    #combinacion_indices.sort()
     for idx in combinacion_indices:
         obj = objetos[idx]
         print(f"Objeto {obj['id']} seleccionado: {metrica} = {obj[metrica]}, Valor = {obj['valor']}")
