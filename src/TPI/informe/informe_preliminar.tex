@@ -1,0 +1,326 @@
+\documentclass[12pt, a4paper, twocolumn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage[margin=2.5cm]{geometry} 
+\usepackage{times} 
+\usepackage{titlesec} 
+\usepackage{amsmath, amssymb} 
+\usepackage{graphicx} 
+\usepackage{booktabs} 
+\usepackage{url} 
+\usepackage{caption} 
+
+
+\setlength{\columnsep}{1cm} 
+\pagestyle{empty}
+
+
+\titleformat{\section}{\normalfont\fontsize{12}{15}\selectfont\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\fontsize{12}{15}\selectfont\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalfont\fontsize{12}{15}\selectfont\bfseries\itshape}{}{0em}{}
+
+\titlespacing*{\section}{0pt}{1.4ex plus 0.6ex minus .2ex}{0.6ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1.1ex plus 0.5ex minus .2ex}{0.5ex plus .2ex}
+\titlespacing*{\subsubsection}{0pt}{0.9ex plus 0.4ex minus .2ex}{0.4ex plus .2ex}
+
+
+\DeclareCaptionFont{times10italic}{\fontsize{10}{12}\selectfont\itshape}
+\captionsetup{font=times10italic, labelfont=times10italic, justification=centering}
+\captionsetup[table]{labelfont=times10italic, textfont=times10italic}
+
+
+\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+
+\usepackage{caption}
+\captionsetup{skip=2pt}
+
+
+\begin{document}
+
+
+\twocolumn[
+  \begin{center}
+
+    {\fontsize{16}{20}\selectfont\bfseries Optimización de la Inclinación y Orientación de Paneles Solares Mediante Algoritmos Genéticos \par}
+    \vspace{0.3cm}
+
+    {\fontsize{12}{15}\selectfont\bfseries\itshape Universidad Tecnológica Nacional, Facultad Regional Rosario \par}
+    \vspace{0.35cm}
+  \end{center}
+
+
+  \noindent\textbf{\fontsize{10}{12}\selectfont Abstract} \\
+  {\fontsize{10}{12}\selectfont\itshape
+  Los métodos tradicionales de instalación fotovoltaica fijan la inclinación en un valor igual a la latitud del lugar y orientan el panel hacia el ecuador, sin considerar la variabilidad estacional de la radiación, la nubosidad ni los efectos térmicos sobre la celda. En este trabajo se desarrolló un Algoritmo Genético (AG) de codificación real para optimizar conjuntamente la inclinación y el azimut de un panel fotovoltaico, usando como función de aptitud la energía anual estimada mediante el modelo de transposición anisotrópico de Pérez y el modelo térmico SAPM, sobre datos horarios de un Año Meteorológico Típico (TMY) de Rosario, Argentina. Se realizó un barrido de hiperparámetros y se evaluó la estabilidad del algoritmo mediante 15 corridas independientes con semillas distintas. La configuración óptima hallada (inclinación $\approx 36,05^\circ$, azimut $\approx 32,32^\circ$) supera en un $+3,37\%$ a la regla tradicional, con dispersión casi nula entre corridas ($\sigma = 0,05\,\text{kWh}$) y convergencia rápida ($99\%$ del óptimo antes de la segunda generación), demostrando que la optimización metaheurística permite ganancias energéticas significativas a costo de instalación nulo.
+  \par}
+  \vspace{0.15cm}
+
+
+  \noindent\textbf{\fontsize{10}{12}\selectfont Palabras Clave} \\
+  {\fontsize{10}{12}\selectfont Algoritmos genéticos, energía solar fotovoltaica, optimización metaheurística, inclinación y orientación de paneles, modelo térmico SAPM.\par}
+  \vspace{0.4cm}
+]
+
+
+
+\section{Introducción}
+La energía fotovoltaica es fundamental en la transición hacia fuentes limpias gracias a la reducción de costos, su diseño modular y la ausencia de emisiones durante su operación. Sin embargo, su rendimiento no depende únicamente de la eficiencia del panel, sino de cómo se expone ante la trayectoria del sol a lo largo del año.
+
+La posición de un panel plano se define con dos ángulos: la \textbf{inclinación} ($\beta$, entre $0^\circ$ y $90^\circ$ respecto al suelo) y el \textbf{azimut} ($\gamma$, dirección respecto al meridiano local, donde $0^\circ$=Norte, $90^\circ$=Este, $180^\circ$=Sur y $270^\circ$=Oeste).
+
+La regla tradicional para instalaciones fijas propone igualar la inclinación a la latitud ($\beta = |\text{latitud}|$) y orientar el panel hacia el ecuador ($\gamma = 0^\circ$). Aunque es una aproximación práctica, no considera la física real de la atmósfera ni tres factores climáticos clave:
+\begin{enumerate}
+    \item \textbf{Radiación difusa:} En días nublados, gran parte de la luz no llega recta, sino dispersa desde múltiples puntos del cielo.
+    \item \textbf{Desfase térmico:} Las temperaturas más altas ocurren por la tarde (no al mediodía solar), lo que reduce la eficiencia del silicio cuando el panel recibe más radiación.
+    \item \textbf{Variación estacional:} La disponibilidad de radiación no se distribuye de manera simétrica entre verano e invierno.
+\end{enumerate}
+
+Por estos motivos, la regla convencional suele derivar en rendimientos subóptimos. Determinar la combinación ideal $(\beta, \gamma)$ requiere simular el sistema a lo largo de las 8760 horas del año, lo que representa un problema complejo de optimización. Ante esto, los \textbf{Algoritmos Genéticos (AG)} son una solución muy conveniente: inspirados en la selección natural, exploran de forma eficiente el rango de opciones sin requerir cálculos matemáticos complejos o derivados.
+
+\subsection{Objetivos}
+
+\subsubsection{Objetivo General}
+Desarrollar un algoritmo genético que determine el ángulo de inclinación óptimo de un panel fotovoltaico con el fin de maximizar la energía captada y, en consecuencia, la eficiencia energética del sistema en comparación con una configuración de inclinación fija.
+
+\subsubsection{Objetivos Específicos}
+\begin{enumerate}
+    \item Analizar los fundamentos teóricos de la radiación solar, la geometría solar y su relación con la inclinación y orientación de los paneles fotovoltaicos.
+    \item Identificar y sistematizar las variables ambientales y geográficas (latitud, estacionalidad, nubosidad, sombreado) que inciden en la generación energética de un sistema fotovoltaico.
+    \item Diseñar un modelo de función objetivo que permita estimar la energía generada en función de los parámetros de inclinación y orientación de los paneles.
+    \item Implementar un algoritmo genético que optimice los parámetros de inclinación y orientación a partir del modelo de función objetivo definido.
+    \item Comparar los resultados obtenidos mediante el algoritmo genético con los valores calculados a través de métodos tradicionales o estáticos de configuración de paneles solares.
+    \item Evaluar el desempeño del algoritmo genético en términos de precisión, tiempo de convergencia y mejora porcentual de la generación energética respecto de las configuraciones base.
+\end{enumerate}
+
+\section{Marco Teórico}
+En esta sección se exponen los pilares teóricos en los que se fundamenta la investigación: la estructura funcional de los algoritmos genéticos continuos, el modelo anisotrópico de radiación solar y el modelo de comportamiento térmico-eléctrico del silicio.
+
+\subsection{Algoritmos Genéticos y Evolución Computacional}
+Los Algoritmos Genéticos (AG), desarrollados por John Holland \cite{holland1975adaptation}, son técnicas de optimización inspiradas en la evolución natural. Resultan especialmente eficaces en problemas complejos donde no existe una fórmula directa para despejar la solución ideal y se requiere evaluar múltiples combinaciones mediante simulaciones numéricas.
+
+\subsubsection{Codificación y Función de Aptitud}
+Se adoptó una \textbf{codificación real}: cada individuo representa una solución mediante el vector
+\begin{equation}
+\mathbf{x} = [\beta, \gamma] \in \mathbb{R}^2
+\end{equation}
+con $\beta \in [0^\circ, 90^\circ]$ y $\gamma \in [0^\circ, 360^\circ]$, evitando las discontinuidades ("saltos de Hamming") de la codificación binaria. La aptitud de cada individuo es la energía eléctrica neta anual ($\text{kWh}$) producida a lo largo de las 8760 horas del TMY:
+\begin{equation}
+\text{Fitness}(\beta, \gamma) = E_{anual}(\beta, \gamma)
+\end{equation}
+tratándose de un problema de maximización.
+
+\subsubsection{Operadores Genéticos}
+\begin{itemize}
+    \item \textbf{Selección por Torneo ($k=3$):} se eligen $k$ individuos al azar y el de mayor \textit{fitness} se convierte en progenitor, regulando la velocidad de convergencia y evitando la dominancia prematura.
+    \item \textbf{Cruce Aritmético ($P_c = 0,85$):} dos padres ($\mathbf{p}_1, \mathbf{p}_2$) generan dos hijos mediante combinación lineal convexa con $\alpha \sim U(0,1)$, explorando zonas intermedias del espacio de soluciones:
+    \begin{equation}
+    \begin{aligned}
+        \mathbf{h}_1 &= \alpha \mathbf{p}_1 + (1-\alpha)\mathbf{p}_2 \\
+        \mathbf{h}_2 &= (1-\alpha)\mathbf{p}_1 + \alpha \mathbf{p}_2
+    \end{aligned}
+    \end{equation}
+    \item \textbf{Mutación Gaussiana ($P_m = 0,15$):} añade ruido $\mathcal{N}(0,\sigma^2)$ con $\sigma=5,0^\circ$ a los genes, con recorte (\textit{clipping}) posterior para no violar los límites físicos:
+    \begin{equation}
+        g' = \text{clip}\big(g + \mathcal{N}(0, \sigma^2)\big)
+    \end{equation}
+    \item \textbf{Elitismo ($E=2$):} los $E$ mejores individuos pasan intactos a la siguiente generación, garantizando que la secuencia de máximos sea monótonamente no decreciente ($\max(\text{Fitness}_{g+1}) \ge \max(\text{Fitness}_g)$) y que nunca se pierda la mejor solución hallada.
+\end{itemize}
+
+\subsection{Geometría y Radiación (Modelo de Pérez)}
+La radiación solar que llega a la superficie terrestre se compone de tres variables fundamentales:
+\begin{itemize}
+    \item \textbf{Directa Normal (DNI):} Luz que llega en trayectoria recta directamente desde el disco solar.
+    \item \textbf{Difusa Horizontal (DHI):} Luz dispersada por la atmósfera y las nubes que proviene de todas las direcciones del cielo.
+    \item \textbf{Global Horizontal (GHI):} Suma de la radiación directa y difusa sobre una superficie plana horizontal.
+\end{itemize}
+
+Para calcular la radiación total que recibe el panel inclinado ($G_{poa}$), se utiliza el \textbf{Modelo Anisotrópico de Pérez} \cite{perez1990new}. Este modelo divide la componente difusa (DHI) en tres fuentes del cielo: la luz uniforme de la atmósfera, la luz concentrada alrededor del sol y el brillo cerca del horizonte:
+\begin{equation}
+\resizebox{\linewidth}{!}{$\displaystyle
+G_{poa} = G_b R_b + G_d \left[ (1-F_1) \frac{1+\cos\beta}{2} + F_1 \frac{a}{b} + F_2 \sin\beta \right] + G_g \rho \frac{1-\cos\beta}{2}
+$}
+\end{equation}
+donde $G_b, G_d, G_g$ son las componentes directa, difusa y global ajustadas; $R_b$ es el factor que orienta la luz directa según la posición del sol; $\rho=0,2$ es el reflejo del suelo (albedo); $F_1$ y $F_2$ indican la claridad del cielo y el brillo del horizonte; y $a, b$ son factores de proyección geométrica del sol sobre el panel.
+\subsection{Modelo Fotovoltaico y Rendimiento Térmico (SAPM)}
+La eficiencia del panel depende directamente de su temperatura: al calentarse la celda, disminuye su voltaje y cae la potencia máxima producida. Para simular este comportamiento se utiliza el modelo \textbf{SAPM} (\textit{Sandia Array Performance Model}) \cite{king2004sandia}. 
+
+Primero, la temperatura del panel ($T_m$) se calcula considerando la temperatura ambiente ($T_a$), la velocidad del viento ($WS$) y la radiación que recibe en su plano ($G_{poa}$):
+\begin{equation}
+T_m = T_a + G_{poa} \cdot e^{(a + b \cdot WS)}
+\end{equation}
+donde $a = -3,47$ y $b = -0,0594$ son constantes para paneles de silicio. Luego, la temperatura real dentro de la celda ($T_c$) se obtiene agregando la diferencia térmica del vidrio ($\Delta T = 3^\circ\text{C}$, con $G_0=1000\,\text{W/m}^2$ en condiciones estándar STC):
+\begin{equation}
+T_c = T_m + \frac{G_{poa}}{G_0} \cdot \Delta T
+\end{equation}
+
+Con este valor, la potencia en corriente continua ($P_{dc}$) se ajusta según la temperatura de la celda:
+\begin{equation}
+P_{dc} = P_{nom} \cdot \frac{G_{poa}}{G_0} \cdot \left[ 1 + \gamma_{pdc} \cdot (T_c - 25^\circ\text{C}) \right]
+\end{equation}
+donde $\gamma_{pdc} = -0,004\,^\circ\text{C}^{-1}$ es el coeficiente de pérdida por temperatura. Cuando la celda trabaja a menos de $25^\circ\text{C}$ (por ejemplo, en mañanas frías de invierno), el panel aprovecha el frío para elevar su voltaje y generar más energía que su valor nominal.
+
+Por último, aplicando la eficiencia general de la instalación ($\eta_{bos} = 0,86$), que descuenta pérdidas en cables, suciedad e inversor, la energía anual neta resulta:
+\begin{equation}
+E_{anual} = \eta_{bos} \cdot \sum_{h=1}^{8760} P_{dc, h} \cdot \Delta t \quad (\Delta t = 1\,\text{h})
+\end{equation}
+
+\section{Caso de Estudio y Metodología}
+La metodología se aplicó en \textbf{Rosario, Santa Fe, Argentina} (Lat. $-32,94^\circ$, Long. $-60,63^\circ$, 25 m s.n.m.), usando el TMY extraído del sistema PVGIS de la Comisión Europea, con 8760 lecturas horarias de DNI, DHI, GHI, temperatura del aire, presión y velocidad del viento. El flujo computacional se desarrolló en Python con la librería \texttt{pvlib} \cite{pvlib}.
+
+\subsection{Diseño de Experimentos}
+Se estructuraron dos fases: (1) \textbf{Barrido de Hiperparámetros (Grid Search):} se evaluaron cuatro combinaciones (Población $N$, Generaciones $G$) --- $(20,10)$, $(20,30)$, $(50,20)$ y $(100,30)$ --- cada una ejecutada 5 veces, buscando el punto de inflexión donde la ganancia no justifique el costo computacional adicional. (2) \textbf{Evaluación Estadística:} con los hiperparámetros óptimos, se realizaron 15 ejecuciones independientes con semillas distintas, definiendo la \textbf{Generación de Convergencia al 99\%} como la primera generación $g^*$ tal que:
+\begin{equation}
+E(g^*) \ge 0,99 \cdot E_{final}
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\caption{Parámetros de configuración del Algoritmo Genético.}
+\label{tab:param_ga}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor} \\
+\midrule
+Tamaño de población ($N$) & 50 \\
+Número de generaciones ($G$) & 20 \\
+Probabilidad de cruce ($P_c$) & 0,85 \\
+Probabilidad de mutación ($P_m$) & 0,15 \\
+Desviación estándar de mutación ($\sigma$) & $5,0^\circ$ \\
+Tamaño de torneo ($k$) & 3 \\
+Individuos elitistas ($E$) & 2 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section{Resultados y Discusión}
+
+\subsection{Análisis del Barrido de Hiperparámetros}
+La Tabla \ref{tab:barrido} consolida el comportamiento de las cuatro combinaciones de hiperparámetros evaluadas durante la primera fase experimental.
+
+\begin{table}[htbp]
+\centering
+\caption{Resultados del barrido de hiperparámetros (promedio de 5 ejecuciones).}
+\label{tab:barrido}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Población ($N$)} & \textbf{Gen ($G$)} & \textbf{Tiempo Med. (s)} & \textbf{Energía (kWh)} & \textbf{Desv. Energía (kWh)} & \textbf{Ganancia \%} \\
+\midrule
+20 & 10 & 1,21 & 1662,25 & 29,35 & +2,23 \\
+20 & 30 & 3,50 & 1669,77 & 21,86 & +2,70 \\
+\textbf{50} & \textbf{20} & \textbf{5,78} & \textbf{1680,73} & \textbf{0,015} & \textbf{+3,374} \\
+100 & 30 & 17,39 & 1680,75 & 0,00014 & +3,375 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Una población pequeña con pocas iteraciones ($N=20, G=10$) converge prematuramente por pérdida temprana de diversidad genética. La configuración $N=50, G=20$ captura ya un $+3,374\%$ de mejora con solo $5,78$ s de cómputo; triplicar los recursos a $N=100, G=30$ eleva el tiempo a $17,39$ s por un rédito marginal de apenas $+0,001\,\text{kWh/año}$. Esto confirma a $N=50, G=20$ como el equilibrio óptimo entre precisión y eficiencia.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{../graficos/grafico_tiempo_vs_calidad.png}
+\caption{Compromiso entre tiempo de cómputo y energía generada para distintas configuraciones de hiperparámetros.}
+\label{fig:tiempo_vs_calidad}
+\end{figure}
+
+\subsection{Evaluación Estadística de Estabilidad y Convergencia}
+La Tabla \ref{tab:comparacion} presenta los resultados consolidados de las 15 ejecuciones del AG ($N=50, G=20$) frente al método tradicional.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparación entre Método Tradicional y Algoritmo Genético (15 ejecuciones independientes).}
+\label{tab:comparacion}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcc}
+\toprule
+\textbf{Métrica / Parámetro} & \textbf{Tradicional} & \textbf{Algoritmo Genético} \\
+\midrule
+Inclinación ($\beta$) [$^\circ$] & 32,94 & 36,05 $\pm$ 0,11 \\
+Azimut ($\gamma$) [$^\circ$] & 0,00 & 32,32 $\pm$ 0,27 \\
+Energía Anual [kWh/año] & 1625,87 & \textbf{1680,74 $\pm$ 0,01} \\
+Ganancia Porcentual [\%] & Baseline & \textbf{+3,37\%} \\
+Gen. Convergencia (99\%) & N/A & 0,7 $\pm$ 0,9 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+La baja dispersión entre corridas ($\sigma = 0,05\,\text{kWh}$) valida la estabilidad estocástica del algoritmo y demuestra que la solución no depende de una inicialización favorable.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{../graficos/convergencia_objetivo5.png}
+\caption{Evolución de la energía máxima acumulada en 15 ejecuciones (líneas grises) y promedio (línea azul). La línea roja punteada representa la referencia tradicional.}
+\label{fig:convergencia}
+\end{figure}
+
+Como ilustra la Figura \ref{fig:convergencia}, la curva de convergencia promedio cruza la línea del $99\%$ de la energía máxima en la generación $1,2 $, alcanzando la meseta óptima en menos de 10 generaciones. La Figura \ref{fig:comparacion} destaca visualmente el incremento absoluto de energía logrado.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{../graficos/comparacion_ga_vs_trad.png}
+\caption{Comparación directa de la energía anual generada entre la regla tradicional y el Algoritmo Genético.}
+\label{fig:comparacion}
+\end{figure}
+
+\subsection{Interpretación Física y Atmosférica de los Resultados}
+El Algoritmo Genético redujo la inclinación del panel y lo giró ligeramente hacia el Oeste debido a dos factores climáticos y físicos de la zona:
+
+\begin{enumerate}
+    \item \textbf{Mayor aprovechamiento del verano y radiación difusa:} En esta latitud, el verano ofrece días más largos con el sol muy alto en el cielo. Disminuir la inclinación permite recibir los rayos solares de forma más directa durante la época de mayor recurso y, al mismo tiempo, capta más luz difusa del cielo en días parcialmente nublados.
+    \item \textbf{Aprovechamiento térmico por la tarde:} El punto máximo de radiación solar ocurre cerca del mediodía, pero la temperatura ambiente más alta se registra a media tarde. Orientar el panel ligeramente hacia el Oeste aprovecha las horas de la tarde en las que la temperatura empieza a bajar, lo que reduce las pérdidas por sobrecalentamiento en las celdas y mejora la generación.
+\end{enumerate}
+
+Obtener esta ganancia de energía no requiere inversión adicional (CAPEX), ya que solo implica ajustar los ángulos del soporte durante la instalación, ofreciendo un beneficio económico directo.
+
+\section{Trabajos Relacionados}
+El diseño clásico de sistemas fotovoltaicos fijos, formalizado en textos de referencia como \cite{duffie2013solar}, se basa en reglas geométricas cerradas (inclinación igual a la latitud) derivadas de un cielo isotrópico ideal, sin optimización posterior. El modelo de transposición de Pérez \cite{perez1990new} y el modelo térmico SAPM \cite{king2004sandia} —ambos ampliamente adoptados en herramientas de simulación de código abierto como \texttt{pvlib} \cite{pvlib}— permitieron superar esa limitación al representar con precisión la radiación difusa anisotrópica y las pérdidas térmicas, pero su uso habitual se limita a la evaluación de configuraciones predefinidas, no a su optimización automática. Los Algoritmos Genéticos, introducidos por Holland \cite{holland1975adaptation}, se han aplicado extensamente a problemas de optimización continua no convexa en ingeniería; sin embargo, su combinación con modelos de radiación y térmicos de alta fidelidad para optimizar conjuntamente inclinación y azimut en instalaciones fijas está mucho menos explorada que los enfoques analíticos o de barrido exhaustivo tradicionales. Este trabajo se diferencia de dichos antecedentes al acoplar directamente un AG de codificación real con una simulación horaria anual completa, en lugar de una aproximación simplificada o estática.
+
+\section{Conclusión y Trabajos Futuros}
+Se demostró que la regla tradicional ($\beta = \text{latitud}$) no alcanza el máximo rendimiento posible porque no considera las pérdidas por temperatura en la celda ni la radiación difusa del cielo. El Algoritmo Genético desarrollado logró un aumento energético del \textbf{+3,37\% anual} en la ciudad de Rosario, elevando la producción de $1625,87\,\text{kWh/año}$ a $1680,74\,\text{kWh/año}$. Además, el método demostró ser rápido y confiable: requirió menos de $5,8$ segundos de cálculo, alcanzó el $99\%$ de la solución óptima antes de la segunda generación y mantuvo resultados consistentes en todas las ejecuciones ($\sigma = 0,05\,\text{kWh}$).
+
+Como limitación, el estudio analizó una sola ubicación geográfica y una única fila de paneles sin sombras externas. Como trabajos futuros se propone:
+\begin{enumerate}
+    \item Analizar la ganancia energética mes a mes para identificar las épocas del año con mayor impacto.
+    \item Incluir el efecto de sombra entre filas para definir el distanciamiento ideal en plantas solares más grandes.
+    \item Evaluar un ajuste de dos posiciones al año (un ángulo para verano y otro para invierno).
+    \item Aplicar optimización multiobjetivo (NSGA-II) para equilibrar la generación de energía con la resistencia de la estructura frente al viento.
+\end{enumerate}
+
+\vspace{0.15cm}
+
+\noindent{\fontsize{10}{12}\selectfont\bfseries Referencias}
+\fontsize{9}{10.5}\selectfont
+\renewcommand{\refname}{}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\begin{thebibliography}{9}
+
+\bibitem{holland1975adaptation}
+Holland, J. H. (1975). \textit{Adaptation in Natural and Artificial Systems}. University of Michigan Press.
+
+\bibitem{perez1990new}
+Perez, R., Ineichen, P., Seals, R., Michalsky, J., \& Stewart, R. (1990). Modeling daylight availability and irradiance components from direct and global irradiance. \textit{Solar Energy}, 44(5), 271-289.
+
+\bibitem{king2004sandia}
+King, D. L., Boyson, W. E., \& Kratochvil, J. A. (2004). \textit{Photovoltaic Array Performance Model}. Sandia National Laboratories, Report SAND2004-3535.
+
+\bibitem{pvlib}
+Holmgren, W. F., Hansen, C. W., \& Mikofski, M. A. (2018). pvlib python: a python package for modeling solar energy systems. \textit{Journal of Open Source Software}, 3(29), 884.
+
+\bibitem{duffie2013solar}
+Duffie, J. A., \& Beckman, W. A. (2013). \textit{Solar Engineering of Thermal Processes} (4th ed.). Wiley.
+
+\end{thebibliography}
+
+\end{document}
