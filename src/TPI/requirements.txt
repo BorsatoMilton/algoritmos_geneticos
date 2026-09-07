@@ -1,1 +1,5 @@
 pvlib
+numpy
+pandas
+matplotlib
+scipy
