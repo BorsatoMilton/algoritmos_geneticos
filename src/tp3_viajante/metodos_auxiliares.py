@@ -87,5 +87,3 @@ def mutar(cromosoma, prob_mutacion=0.1):
         i, j = random.sample(range(len(cromosoma)), 2)
         cromosoma[i], cromosoma[j] = cromosoma[j], cromosoma[i]
     return cromosoma
- 
- 

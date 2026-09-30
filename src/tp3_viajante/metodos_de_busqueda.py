@@ -2,66 +2,58 @@ import math
 from metodos_auxiliares import realizar_recorrido, crear_poblacion_inicial, evaluar_poblacion, seleccion_por_torneo, crossover_ciclico, mutar
 
 
-def ingresar_provincia(lista_filas, df):
-    print("\nProvincias")
-    print("---------")
-    for i in range(len(lista_filas)):
-        print(f"{i + 1}. {lista_filas[i]}")
+def iniciar_recorrido(lista_filas, df, elegir_provincia):
+    if elegir_provincia:
+        print("\nProvincias")
+        print("---------")
+        for i in range(len(lista_filas)):
+            print(f"{i + 1}. {lista_filas[i]}")
 
-    provincia_partida_num = int(input("Ingrese el número de la provincia: "))
-    while provincia_partida_num < 1 or provincia_partida_num > len(lista_filas):
-        print("Número de provincia inválido. Intente nuevamente.")
         provincia_partida_num = int(input("Ingrese el número de la provincia: "))
+        while provincia_partida_num < 1 or provincia_partida_num > len(lista_filas):
+            print("Número de provincia inválido. Intente nuevamente.")
+            provincia_partida_num = int(input("Ingrese el número de la provincia: "))
 
-    nombre_partida = lista_filas[provincia_partida_num - 1]
-    
-    provincias_visitadas = [nombre_partida]
-    provincias_restantes = lista_filas.copy()
-    provincias_restantes.remove(nombre_partida)
+        origenes_a_evaluar = [lista_filas[provincia_partida_num - 1]]
+    else:
+        origenes_a_evaluar = lista_filas
 
-    distancia_total = 0
-
-    while len(provincias_restantes) > 0:
-        provincias_visitadas, provincias_restantes, distancia = realizar_recorrido(provincias_visitadas, provincias_restantes, df)
-        distancia_total += distancia
-
-
-    distancia_regreso = df.loc[provincias_visitadas[-1], nombre_partida] # esto no se si es asi
-    distancia_total += distancia_regreso
-    provincias_visitadas.append(nombre_partida)
-
-    print("\nCiudad de partida:", nombre_partida)
-    print("Recorrido: ", provincias_visitadas)
-    print("Distancia total: ", distancia_total)
-
-
-def sin_ingresar_provincia(lista_filas, df):
     mejor_distancia_total = math.inf
     mejor_recorrido = []
     mejor_origen = None
+    recorridos = []
 
-    for origen_candidato in lista_filas:
-        provincias_visitadas = [origen_candidato]
+    for origen in origenes_a_evaluar:
+        provincias_visitadas = [origen]
         provincias_restantes = lista_filas.copy()
-        provincias_restantes.remove(origen_candidato)
+        provincias_restantes.remove(origen)
         distancia_total = 0
 
         while len(provincias_restantes) > 0:
             provincias_visitadas, provincias_restantes, distancia = realizar_recorrido(provincias_visitadas, provincias_restantes, df)
             distancia_total += distancia
-        
-        distancia_regreso = df.loc[provincias_visitadas[-1], origen_candidato]
+
+        distancia_regreso = df.loc[provincias_visitadas[-1], origen] 
         distancia_total += distancia_regreso
-        provincias_visitadas.append(origen_candidato)
+        provincias_visitadas.append(origen)
+        recorridos.append((provincias_visitadas, distancia_total))
 
         if distancia_total < mejor_distancia_total:
             mejor_distancia_total = distancia_total
-            mejor_recorrido = provincias_visitadas
-            mejor_origen = origen_candidato
+            mejor_recorrido = list(provincias_visitadas)
+            mejor_origen = origen
 
-    print(f"\nEl punto de partida automático óptimo es: {mejor_origen}")
-    print("Recorrido Automático: ", mejor_recorrido)
-    print("Distancia total mínima encontrada: ", mejor_distancia_total)
+    if elegir_provincia:
+        print(f"\nCiudad de partida: {mejor_origen}")
+        print(f"Recorrido: {mejor_recorrido}")
+        print(f"Distancia total: {mejor_distancia_total}")
+    else:
+        print("\nRecorridos evaluados:")
+        for i, (recorrido, distancia) in enumerate(recorridos):
+            print(f"{i + 1} - Distancia total: {distancia} - Recorrido: {recorrido}")
+        print(f"\nEl punto de partida óptimo es: {mejor_origen}")
+        print(f"Recorrido: {mejor_recorrido}")
+        print(f"Distancia total mínima encontrada: {mejor_distancia_total}")
 
 
 def resolver_por_ag(lista_filas, df, n_poblacion=50, m_ciclos=200, prob_mutacion=0.1):

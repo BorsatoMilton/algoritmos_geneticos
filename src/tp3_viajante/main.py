@@ -1,5 +1,6 @@
 import pandas as pd
-from metodos_de_busqueda import ingresar_provincia, sin_ingresar_provincia, resolver_por_ag
+from metodos_de_busqueda import iniciar_recorrido, resolver_por_ag
+
 
 def main():
     df = pd.read_excel("TablaCapitales.xlsx", index_col=0)
@@ -26,9 +27,9 @@ def main():
             continue
 
         if decision == 1:
-            ingresar_provincia(lista_filas, df)
+            iniciar_recorrido(lista_filas, df, True)
         elif decision == 2:
-            sin_ingresar_provincia(lista_filas, df)
+            iniciar_recorrido(lista_filas, df, False)
         elif decision == 3:
             resolver_por_ag(lista_filas, df)
         elif decision == 4:
