@@ -1,5 +1,5 @@
 import pandas as pd
-from metodos_de_busqueda import iniciar_recorrido, resolver_por_ag
+from metodos_de_busqueda import iniciar_recorrido, ejecutar_corridas_ag
 
 
 def main():
@@ -31,7 +31,14 @@ def main():
         elif decision == 2:
             iniciar_recorrido(lista_filas, df, False)
         elif decision == 3:
-            resolver_por_ag(lista_filas, df)
+            try:
+                n = int(input("¿Cuántas corridas desea realizar? "))
+                if n < 1:
+                    raise ValueError
+            except ValueError:
+                print("Ingrese un número entero positivo.")
+                continue
+            ejecutar_corridas_ag(lista_filas, df, n)
         elif decision == 4:
             print("Saliendo del programa...")
             break 

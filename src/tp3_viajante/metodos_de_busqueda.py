@@ -1,4 +1,5 @@
 import math
+import pandas as pd
 from metodos_auxiliares import realizar_recorrido, crear_poblacion_inicial, evaluar_poblacion, seleccion_por_torneo, crossover_ciclico, mutar
 
 
@@ -56,7 +57,7 @@ def iniciar_recorrido(lista_filas, df, elegir_provincia):
         print(f"Distancia total mínima encontrada: {mejor_distancia_total}")
 
 
-def resolver_por_ag(lista_filas, df, n_poblacion=50, m_ciclos=200, prob_mutacion=0.1):
+def resolver_por_ag(lista_filas, df, n_poblacion=50, m_ciclos=200, prob_mutacion=0.1, mostrar=True):
     tam_cromosoma = len(lista_filas)
 
     poblacion = crear_poblacion_inicial(tam_cromosoma, n_poblacion)
@@ -93,8 +94,46 @@ def resolver_por_ag(lista_filas, df, n_poblacion=50, m_ciclos=200, prob_mutacion
     
     recorrido_numeros = [i + 1 for i in mejor_recorrido_indices] + [mejor_recorrido_indices[0] + 1]
     
-    print(f"\nRecorrido Genético (en números): {recorrido_numeros}")
-    print(f"Recorrido Genético (en provincias): {recorrido_completo}")
-    print(f"Distancia total: {mejor_distancia:.2f}")
- 
+    if mostrar:
+        print(f"\nRecorrido Genético (en números): {recorrido_numeros}")
+        print(f"Recorrido Genético (en provincias): {recorrido_completo}")
+        print(f"Distancia total: {mejor_distancia:.2f}")
+
     return mejor_recorrido_nombres, mejor_distancia
+
+
+def ejecutar_corridas_ag(lista_filas, df, n_corridas=10, archivo_salida="corridas_AG.xlsx"):
+    resultados = []
+
+    for corrida in range(1, n_corridas + 1):
+        recorrido, distancia = resolver_por_ag(lista_filas, df, mostrar=False)
+
+        recorrido_numeros = [lista_filas.index(p) + 1 for p in recorrido]
+        recorrido_numeros.append(recorrido_numeros[0])    
+        recorrido_nombres = recorrido + [recorrido[0]]
+
+        resultados.append({
+            "Corrida": corrida,
+            "Distancia (km)": round(distancia, 2),
+            "Secuencia (números)": " - ".join(map(str, recorrido_numeros)),
+            "Secuencia (provincias)": " - ".join(recorrido_nombres),
+        })
+
+        print(f"\nCorrida {corrida}")
+        print(f"  Secuencia: {recorrido_numeros}")
+        print(f"  Provincias: {recorrido_nombres}")
+        print(f"  Distancia total: {distancia:.2f} km")
+
+    tabla = pd.DataFrame(resultados)
+    distancias = tabla["Distancia (km)"]
+
+    print("\n=== RESUMEN DE CORRIDAS ===")
+    print(f"Mejor corrida : {distancias.min():.2f} km (corrida {distancias.idxmin() + 1})")
+    print(f"Peor corrida  : {distancias.max():.2f} km")
+    print(f"Promedio      : {distancias.mean():.2f} km")
+    print(f"Desv. estándar: {distancias.std():.2f} km")
+
+    tabla.to_excel(archivo_salida, index=False)
+    print(f"\nResultados guardados en '{archivo_salida}'")
+
+    return tabla
